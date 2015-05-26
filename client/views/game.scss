@@ -1,0 +1,172 @@
+svg {
+	overflow: hidden;
+}
+
+#sidebar {
+	vertical-align: top;
+	display: inline-block;
+	z-index: 9999;
+	height: 100vh;
+	width: 15%;
+	background: #000;
+	border-right: 2px gainsboro solid;
+	#login-buttons {
+		display: block;
+		background: gainsboro;
+		padding: 20px;
+		height: 55px;
+		font-size: 20px;
+		a {
+			text-decoration: none;
+		}
+	}
+	.credit {
+		color: white;
+		font-size: 15px;
+	}
+}
+
+#focus {
+	display: none;
+	width: 600px;
+	height: 600px;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	margin: -300px 0 0 -300px;
+	z-index: 9999;
+	.hex {
+	  position: relative;
+	  width: 450px; 
+	  height: 259.81px;
+	  margin: 129.90px 0;
+	}
+
+	.hex:before,
+	.hex:after {
+	  content: "";
+	  position: absolute;
+	  width: 0;
+	  border-left: 225px solid transparent;
+	  border-right: 225px solid transparent;
+	}
+
+	.hex:before {
+	  bottom: 100%;
+	  border-bottom: 129.90px solid;
+	}
+
+	.hex:after {
+	  top: 100%;
+	  width: 0;
+	  border-top: 129.90px solid;
+	}
+
+	.grass {
+	  background-color: #72B248;
+	}
+	.grass:before {
+	  border-bottom-color: #72B248;
+	}
+	.grass:after {
+	  border-top-color: #72B248;
+	}
+
+	.water {
+	  background-color: #5BC4AF;
+	}
+	.water:before {
+	  border-bottom-color: #5BC4AF;
+	}
+	.water:after {
+	  border-top-color: #5BC4AF;
+	}
+
+	.ground {
+	  background-color: #563C29;
+	}
+	.ground:before {
+	  border-bottom-color: #563C29;
+	}
+	.ground:after {
+	  border-top-color: #563C29;
+	}
+
+	.stone {
+	  background-color: #807171;
+	}
+	.stone:before {
+	  border-bottom-color: #807171;
+	}
+	.stone:after {
+	  border-top-color: #807171;
+	}
+
+	.forest {
+	  background-color: #3D6C20;
+	}
+	.forest:before {
+	  border-bottom-color: #3D6C20;
+	}
+	.forest:after {
+	  border-top-color: #3D6C20;
+	}
+
+	.sand {
+	  background-color: #F7B624;
+	}
+	.sand:before {
+	  border-bottom-color: #F7B624;
+	}
+	.sand:after {
+	  border-top-color: #F7B624;
+	}
+
+}
+
+.d3-context-menu {
+  position: absolute;
+  display: none;
+  background-color: #f2f2f2;
+  border-radius: 4px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  min-width: 150px;
+  border: 1px solid #d4d4d4;
+  z-index: 1200;
+}
+
+.d3-context-menu ul {
+  list-style-type: none;
+  margin: 4px 0px;
+  padding: 0px;
+  cursor: pointer;
+}
+
+.d3-context-menu ul li {
+  padding: 4px 16px;
+}
+
+.d3-context-menu ul li:hover {
+  background-color: black;
+  color: white;
+}
+
+.claimed {
+	/*stroke: blue;*/
+	stroke-width: 5px;
+}
+
+.hovered {
+	stroke: red;
+	stroke-width: 5px;
+}
+
+.wall {
+	stroke: white;
+	stroke-width: 5px;
+}
+
+.hidden {
+	display: none;
+}

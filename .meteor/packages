@@ -1,0 +1,15 @@
+standard-app-packages
+iron:router
+bootstrap
+reactjs:react
+robertlowe:meteor-phaser
+mizzao:jquery-ui
+
+
+johnantoni:meteor-appear
+fourseven:scss
+d3js:d3
+underscore
+accounts-ui-unstyled
+accounts-ui
+accounts-password

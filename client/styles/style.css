@@ -1,0 +1,156 @@
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+body {
+  background-color: #000;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+.container {
+  width: 960px;
+  margin: 0 auto;
+}
+button {
+  background: #eee;
+  padding: 10px 20px;
+}
+canvas {
+    margin: 0 auto;
+    display: block;
+}
+#game_container {
+  color: #eee;
+  background: #000;
+  padding-top: 55px;
+  width: 100%;
+  height: 100vh;
+  overflow: scroll;
+  z-index: -2;
+}
+
+#world{
+  width: 100%;
+  height: 100vh;
+}
+#camera {
+  display: inline-block;
+  position: relative;
+  width: 84%;
+  height: 100vh;
+  background: #000;
+}
+.hex {
+  float:left;
+  /*display: none;*/
+  position: absolute;
+  width: 60px; 
+  height: 34.64px;
+  margin: 17.32px 0px 0px;
+}
+
+.hex:before,
+.hex:after {
+  content: "";
+  position: absolute;
+  width: 0;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+}
+
+.hex:before {
+  bottom: 100%;
+  border-bottom: 17.32px solid;
+}
+
+.hex:after {
+  top: 100%;
+  width: 0;
+  border-top: 17.32px solid;
+}
+
+.hex:hover {
+  background: red;
+}
+
+#loading {
+  margin-top: 150px;
+  color: white;
+  text-align: center;
+}
+
+nav {
+  position: absolute;
+  z-index: 999;
+}
+
+.odd {
+  /*margin-left: 30px;*/
+}
+
+/*------------------------------------------------------------*/
+/*------------------------- Textures -------------------------*/
+/*------------------------------------------------------------*/
+
+  .grass {
+    fill: #72B248;
+  }
+  .grass:before {
+    border-bottom-color: #72B248;
+  }
+  .grass:after {
+    border-top-color: #72B248;
+  }
+
+  .water {
+    fill: #5BC4AF;
+  }
+  .water:before {
+    border-bottom-color: #5BC4AF;
+  }
+  .water:after {
+    border-top-color: #5BC4AF;
+  }
+
+  .ground {
+    fill: #563C29;
+  }
+  .ground:before {
+    border-bottom-color: #563C29;
+  }
+  .ground:after {
+    border-top-color: #563C29;
+  }
+
+  .stone {
+    fill: #807171;
+  }
+  .stone:before {
+    border-bottom-color: #807171;
+  }
+  .stone:after {
+    border-top-color: #807171;
+  }
+
+  .forest {
+    fill: #3D6C20;
+  }
+  .forest:before {
+    border-bottom-color: #3D6C20;
+  }
+  .forest:after {
+    border-top-color: #3D6C20;
+  }
+
+  .sand {
+    fill: #F7B624;
+  }
+  .sand:before {
+    border-bottom-color: #F7B624;
+  }
+  .sand:after {
+    border-top-color: #F7B624;
+  }
