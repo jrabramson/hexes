@@ -39,6 +39,8 @@ Template.game.rendered = function () {
   var hexMenu = [
       {
           title: function(d) {
+            console.log("x: " + d.value.x);
+            console.log("y: " + d.value.y);
             userDeps.depend(); 
             if (!Meteor.user()) {
               return "Log in to play";
@@ -149,23 +151,16 @@ var zoom = d3.behavior.zoom()
           .attr("stroke", function(d) {
             return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
           })
-          .attr("stroke-width", function(d) {
-            return _.isEmpty(d.value.owner) ? "1px" : "<5px></5px>";
-          })          
-          .attr("stroke-dasharray", function(d) {
-            if (d.value.owner) {
-              $this = Hexes.findOne({_id: d.value._id});
-             var neighbors = [
-              $this.e().owned(), 
-              $this.se().owned(), 
-              $this.sw().owned(), 
-              $this.w().owned(), 
-              $this.nw().owned(), 
-              $this.ne().owned() ];
-             console.log(neighbors);
-            }
-            return _.isEmpty(d.value.owner) ? "1px" : "<5px></5px>";
-          })
+          // .attr("stroke-width", function(d) {
+          //   return _.isEmpty(d.value.owner) ? "1px" : "5px";
+          // })          
+          // .attr("stroke-dasharray", function(d) {
+          //   if (d.value.owner) {
+          //     $this = Hexes.findOne({_id: d.value._id});
+          //     dasharray($this.look());
+          //   }
+          //   return _.isEmpty(d.value.owner) ? "1px" : "5px";
+          // })
           .on('click', function(hex) {
              if (focused) {
                   $('#camera').css('opacity', '1');
@@ -181,101 +176,159 @@ var zoom = d3.behavior.zoom()
             d3.select(this).classed("hovered", false);
           });
 
-          // world.append("path")
-          //      .attr("d", function (d) {
-          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
-          //        return "M" 
-          //        + (hexRadius * d.value.x * 1.9 + offsetx - 1)
-          //        + "," 
-          //        + (hexRadius * d.value.y * 1.65  + hexRadius + 4)
-          //        + " L"
-          //        + (hexRadius * d.value.x * 1.9 + offsetx + hexRadius - 4)
-          //        + ","
-          //        + (hexRadius * d.value.y * 1.65 + hexRadius / 2 + 1);
-          //      })
-          // .attr("class", function(d) {
-          //    return "wall SE";
-          // });
+          world.append("path")
+              .filter(function(d) {
+                 if (d.value.owner && (Hexes.findOne({_id: d.value._id}).look('se').owner !== d.value.owner)) {
+                  console.log("owner: " + d.value.owner + " at " + d.value.x + ", " + d.value.y + "neighbor: " + Hexes.findOne({_id: d.value._id}).look('se').owner);
+                  return true;
+                 } else {
+                  return false;
+                 }
+                })
+              .attr("d", function (d) {
+                isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
+                return "M" 
+                + (hexRadius * d.value.x * 1.819 + offsetx - 1)
+                + "," 
+                + (hexRadius * d.value.y * 1.578  + hexRadius + 4)
+                + " L"
+                + (hexRadius * d.value.x * 1.819 + offsetx + hexRadius - 4)
+                + ","
+                + (hexRadius * d.value.y * 1.578 + hexRadius / 2 + 1);
+              })
+              .attr("stroke", function(d) {
+                return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+              })
+              .attr("class", function(d) {
+                 return "wall SE";
+              });
 
-          // world.append("path")
-          //      .attr("d", function (d) {
-          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
-          //        return "M" 
-          //        + (hexRadius * d.value.x * 1.9 + offsetx + 1)
-          //        + "," 
-          //        + (hexRadius * d.value.y * 1.65  + hexRadius + 4)
-          //        + " L"
-          //        + (hexRadius * d.value.x * 1.9 + offsetx - hexRadius + 4)
-          //        + ","
-          //        + (hexRadius * d.value.y * 1.65 + hexRadius / 2 + 1);
-          //      })
-          // .attr("class", function(d) {
-          //    return "wall SW";
-          // });
+          world.append("path")
+               .filter(function(d) {
+                  if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('sw').owner !== d.value.owner) {
+                   return true;
+                  } else {
+                   return false;
+                  }
+                 })
+               .attr("d", function (d) {
+                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
+                 return "M" 
+                 + (hexRadius * d.value.x * 1.819 + offsetx + 1)
+                 + "," 
+                 + (hexRadius * d.value.y * 1.578  + hexRadius + 4)
+                 + " L"
+                 + (hexRadius * d.value.x * 1.819 + offsetx - hexRadius + 4)
+                 + ","
+                 + (hexRadius * d.value.y * 1.578 + hexRadius / 2 + 1);
+               })
+               .attr("stroke", function(d) {
+                 return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+               })
+              .attr("class", function(d) {
+                 return "wall SW";
+              });
 
-          // world.append("path")
-          //      .attr("d", function (d) {
-          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
-          //        return "M" 
-          //        + (hexRadius * d.value.x * 1.9 + offsetx - hexRadius + 5)
-          //        + "," 
-          //        + (hexRadius * d.value.y * 1.65 + hexRadius / 2 + 3)
-          //        + " L"
-          //        + (hexRadius * d.value.x * 1.9 + offsetx - hexRadius + 5)
-          //        + ","
-          //        + (hexRadius * d.value.y * 1.65 - hexRadius / 2 - 3);
-          //      })
-          // .attr("class", function(d) {
-          //    return "wall W";
-          // });
+          world.append("path")
+               .filter(function(d) {
+                  if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('w').owner !== d.value.owner) {
+                   return true;
+                  } else {
+                   return false;
+                  }
+                 })
+               .attr("d", function (d) {
+                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
+                 return "M" 
+                 + (hexRadius * d.value.x * 1.819 + offsetx - hexRadius + 5)
+                 + "," 
+                 + (hexRadius * d.value.y * 1.578 + hexRadius / 2 + 3)
+                 + " L"
+                 + (hexRadius * d.value.x * 1.819 + offsetx - hexRadius + 5)
+                 + ","
+                 + (hexRadius * d.value.y * 1.578 - hexRadius / 2 - 3);
+               })
+               .attr("stroke", function(d) {
+                 return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+               })
+              .attr("class", function(d) {
+                 return "wall W";
+              });
 
-          // world.append("path")
-          //      .attr("d", function (d) {
-          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
-          //        return "M" 
-          //        + (hexRadius * d.value.x * 1.9 + offsetx - hexRadius + 4)
-          //        + "," 
-          //        + (hexRadius * d.value.y * 1.65 - hexRadius / 2 - 1)
-          //        + " L"
-          //        + (hexRadius * d.value.x * 1.9 + offsetx + 1)
-          //        + ","
-          //        + (hexRadius * d.value.y * 1.65 - hexRadius - 4);
-          //      })
-          // .attr("class", function(d) {
-          //    return "wall NW";
-          // });
+          world.append("path")
+               .filter(function(d) {
+                  if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('nw').owner !== d.value.owner) {
+                   return true;
+                  } else {
+                   return false;
+                  }
+                 })
+               .attr("d", function (d) {
+                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
+                 return "M" 
+                 + (hexRadius * d.value.x * 1.819 + offsetx - hexRadius + 4)
+                 + "," 
+                 + (hexRadius * d.value.y * 1.578 - hexRadius / 2 - 1)
+                 + " L"
+                 + (hexRadius * d.value.x * 1.819 + offsetx + 1)
+                 + ","
+                 + (hexRadius * d.value.y * 1.578 - hexRadius - 4);
+               })
+               .attr("stroke", function(d) {
+                 return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+               })
+              .attr("class", function(d) {
+                 return "wall NW";
+              });
 
-          // world.append("path")
-          //      .attr("d", function (d) {
-          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
-          //        return "M" 
-          //        + (hexRadius * d.value.x * 1.9 + offsetx - 1)
-          //        + "," 
-          //        + (hexRadius * d.value.y * 1.65 - hexRadius - 4)
-          //        + " L"
-          //        + (hexRadius * d.value.x * 1.9 + offsetx + hexRadius - 4)
-          //        + ","
-          //        + (hexRadius * d.value.y * 1.65 - hexRadius / 2 - 1);
-          //      })
-          // .attr("class", function(d) {
-          //    return "wall NE";
-          // });
+          world.append("path")
+              .filter(function(d) {
+                 if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('ne').owner !== d.value.owner) {
+                  return true;
+                 } else {
+                  return false;
+                 }
+                })
+               .attr("d", function (d) {
+                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
+                 return "M" 
+                 + (hexRadius * d.value.x * 1.819 + offsetx - 1)
+                 + "," 
+                 + (hexRadius * d.value.y * 1.578 - hexRadius - 4)
+                 + " L"
+                 + (hexRadius * d.value.x * 1.819 + offsetx + hexRadius - 4)
+                 + ","
+                 + (hexRadius * d.value.y * 1.578 - hexRadius / 2 - 1);
+               })
+               .attr("stroke", function(d) {
+                 return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+               })
+              .attr("class", function(d) {
+                 return "wall NE";
+              });
 
-          // world.append("path")
-          //      .attr("d", function (d) {
-          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
-          //        return "M" 
-          //        + (hexRadius * d.value.x * 1.9 + offsetx + hexRadius - 5)
-          //        + "," 
-          //        + (hexRadius * d.value.y * 1.65 + hexRadius / 2 + 3)
-          //        + " L"
-          //        + (hexRadius * d.value.x * 1.9 + offsetx + hexRadius - 5)
-          //        + ","
-          //        + (hexRadius * d.value.y * 1.65 - hexRadius / 2 - 3);
-          //      })
-          // .attr("class", function(d) {
-          //    return "wall E";
-          // });
+          world.append("path")
+                .filter(function(d) {
+                   if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('e').owner !== d.value.owner) {
+                    return true;
+                   } else {
+                    return false;
+                   }
+                  })
+               .attr("d", function (d) {
+                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
+                 return "M" 
+                 + (hexRadius * d.value.x * 1.819 + offsetx + hexRadius - 5)
+                 + "," 
+                 + (hexRadius * d.value.y * 1.578 + hexRadius / 2 + 3)
+                 + " L"
+                 + (hexRadius * d.value.x * 1.819 + offsetx + hexRadius - 5)
+                 + ","
+                 + (hexRadius * d.value.y * 1.578 - hexRadius / 2 - 3);
+               })
+          .attr("class", function(d) {
+             return "wall E";
+          });
 
     };
 
@@ -479,4 +532,10 @@ d3.selection.prototype.moveToFront = function() {
   });
 };
 
-function isOdd(num) { return num % 2; }        
+function isOdd(num) { return num % 2; }
+
+function dasharray (sides) {
+  
+}
+
+
