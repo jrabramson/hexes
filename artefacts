@@ -1,0 +1,174 @@
+
+          // walls.append("path")
+          //     .filter(function(d) {
+          //         if (d.value.owner && _.isUndefined(Hexes.findOne({_id: d.value._id}).look('se'))) {
+          //           return true
+          //         }
+          //         if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('se').owner !== d.value.owner) {
+          //          return true;
+          //         } else {
+          //          return false;
+          //         }
+          //       })
+          //     .attr("d", function (d) {
+          //       isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
+          //       return "M" 
+          //       + (hexRadius * d.value.x * multiX + offsetx)
+          //       + "," 
+          //       + (hexRadius * d.value.y * multiY  + hexRadius)
+          //       + " L"
+          //       + (hexRadius * d.value.x * multiX + offsetx + hexRadius * 0.85)
+          //       + ","
+          //       + (hexRadius * d.value.y * multiY + hexRadius / 2);
+          //     })
+          //     .attr("stroke", function(d) {
+          //       return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+          //     })
+          //     .attr("class", function(d) {
+          //        return "wall SE";
+          //     });
+
+          // walls.append("path")
+          //      .filter(function(d) {
+          //         if (d.value.owner && _.isUndefined(Hexes.findOne({_id: d.value._id}).look('sw'))) {
+          //           return true
+          //         }
+          //         if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('sw').owner !== d.value.owner) {
+          //          return true;
+          //         } else {
+          //          return false;
+          //         }
+          //        })
+          //      .attr("d", function (d) {
+          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
+          //        return "M" 
+          //        + (hexRadius * d.value.x * multiX + offsetx + 1)
+          //        + "," 
+          //        + (hexRadius * d.value.y * multiY  + hexRadius + 4)
+          //        + " L"
+          //        + (hexRadius * d.value.x * multiX + offsetx - hexRadius + 4)
+          //        + ","
+          //        + (hexRadius * d.value.y * multiY + hexRadius / 2 + 1);
+          //      })
+          //      .attr("stroke", function(d) {
+          //        return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+          //      })
+          //     .attr("class", function(d) {
+          //        return "wall SW";
+          //     });
+
+          // walls.append("path")
+          //      .filter(function(d) {
+          //         if (d.value.owner && _.isUndefined(Hexes.findOne({_id: d.value._id}).look('w'))) {
+          //           return true
+          //         }
+          //         if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('w').owner !== d.value.owner) {
+          //          return true;
+          //         } else {
+          //          return false;
+          //         }
+          //        })
+          //      .attr("d", function (d) {
+          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
+          //        return "M" 
+          //        + (hexRadius * d.value.x * multiX + offsetx - hexRadius + 5)
+          //        + "," 
+          //        + (hexRadius * d.value.y * multiY + hexRadius / 2 + 3)
+          //        + " L"
+          //        + (hexRadius * d.value.x * multiX + offsetx - hexRadius + 5)
+          //        + ","
+          //        + (hexRadius * d.value.y * multiY - hexRadius / 2 - 3);
+          //      })
+          //      .attr("stroke", function(d) {
+          //        return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+          //      })
+          //     .attr("class", function(d) {
+          //        return "wall W";
+          //     });
+
+          // walls.append("path")
+          //      .filter(function(d) {
+          //         if (d.value.owner && _.isUndefined(Hexes.findOne({_id: d.value._id}).look('nw'))) {
+          //           return true
+          //         }
+          //         if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('nw').owner !== d.value.owner) {
+          //          return true;
+          //         } else {
+          //          return false;
+          //         }
+          //        })
+          //      .attr("d", function (d) {
+          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
+          //        return "M" 
+          //        + (hexRadius * d.value.x * multiX + offsetx - hexRadius + 4)
+          //        + "," 
+          //        + (hexRadius * d.value.y * multiY - hexRadius / 2 - 1)
+          //        + " L"
+          //        + (hexRadius * d.value.x * multiX + offsetx + 1)
+          //        + ","
+          //        + (hexRadius * d.value.y * multiY - hexRadius - 4);
+          //      })
+          //      .attr("stroke", function(d) {
+          //        return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+          //      })
+          //     .attr("class", function(d) {
+          //        return "wall NW";
+          //     });
+
+          // walls.append("path")
+          //     .filter(function(d) {
+          //         if (d.value.owner && _.isUndefined(Hexes.findOne({_id: d.value._id}).look('ne'))) {
+          //           return true
+          //         }
+          //         if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('ne').owner !== d.value.owner) {
+          //          return true;
+          //         } else {
+          //          return false;
+          //         }
+          //       })
+          //      .attr("d", function (d) {
+          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
+          //        return "M" 
+          //        + (hexRadius * d.value.x * multiX + offsetx - 1)
+          //        + "," 
+          //        + (hexRadius * d.value.y * multiY - hexRadius - 4)
+          //        + " L"
+          //        + (hexRadius * d.value.x * multiX + offsetx + hexRadius - 4)
+          //        + ","
+          //        + (hexRadius * d.value.y * multiY - hexRadius / 2 - 1);
+          //      })
+          //      .attr("stroke", function(d) {
+          //        return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+          //      })
+          //     .attr("class", function(d) {
+          //        return "wall NE";
+          //     });
+
+          // walls.append("path")
+          //       .filter(function(d) {
+          //           if (d.value.owner && _.isUndefined(Hexes.findOne({_id: d.value._id}).look('e'))) {
+          //             return true
+          //           }
+          //           if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('e').owner !== d.value.owner) {
+          //            return true;
+          //           } else {
+          //            return false;
+          //           }
+          //         })
+          //      .attr("d", function (d) {
+          //        isOdd(d.value.y) ? offsetx = hexRadius * 0.95 : offsetx = 0;
+          //        return "M" 
+          //        + (hexRadius * d.value.x * multiX + offsetx + hexRadius - 5)
+          //        + "," 
+          //        + (hexRadius * d.value.y * multiY + hexRadius / 2 + 3)
+          //        + " L"
+          //        + (hexRadius * d.value.x * multiX + offsetx + hexRadius - 5)
+          //        + ","
+          //        + (hexRadius * d.value.y * multiY - hexRadius / 2 - 3);
+          //      })
+          //      .attr("stroke", function(d) {
+          //        return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+          //      })
+          //     .attr("class", function(d) {
+          //        return "wall E";
+          //     });

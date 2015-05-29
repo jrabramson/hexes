@@ -1,5 +1,6 @@
 Template.game.helpers({
   hexes: function() {
+      _deps.depend();
       return Hexes.find();
   },
   user: function () {
@@ -13,12 +14,12 @@ Template.sidebar.helpers({
   }
 });
 
-var svg, world, width = 10000, height = 10000, x, gameColumns = 100, gameRows = 100, blocks = [
+var svg, world, walls, width = 10000, height = 10000, x, gameColumns = 100, gameRows = 100, blocks = [
   { x: 0, y: 0 }
 ];
   var hexRadius = d3.min([width/((gameColumns + 0.5) * Math.sqrt(3)),
      height/((gameRows + 1/3) * 1.5)]);
-var userDeps = new Deps.Dependency;
+var userDeps= new Deps.Dependency;
 var _deps = new Deps.Dependency;
 var focusedHex= {};
 focused = false;
@@ -92,13 +93,42 @@ Template.game.rendered = function () {
     } 
   }
 
-  function isOdd(num) { return num % 2;}
+  function hexagon(radius) {
+    var x0 = 0, y0 = 0;
+    return d3_hexbinAngles.map(function(angle) {
+      var x1 = Math.sin(angle) * radius,
+          y1 = -Math.cos(angle) * radius,
+          dx = x1 - x0,
+          dy = y1 - y0;
+      x0 = x1, y0 = y1;
+      return [dx, dy];
+    });
+  }
 
+  Template.game.walls = function(x, y, radius, placement) {
+      walls = ["M" + x + "," + y];
+      placement.move(5, 0).unshift(0);
+      walls.push("m" + hexagon(radius)[0][0] + "," + hexagon(radius)[0][1]);
+      for (i=1;i<=6;i++) {
+        j = i;
+        if (i === 6) {
+          walls.push("M" + x + "," + y);
+          walls.push(' m' + hexagon(radius)[0][0] + "," + hexagon(radius)[0][1]);
+          j = 3;
+        }
+        placement[i] === 1 ? mod = ' m' : mod = ' l';
+        walls.push(mod + hexagon(radius)[j][0] + "," + hexagon(radius)[j][1]);
+      }
+      return walls;
+    };
+  
+  var multiY = 1.58;
+  var multiX = 1.82;
+  var multiO = 0.91;
 
   function zoomed() {
     d3.select("#world").selectAll("g").attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
   }
-
 var drag = d3.behavior.drag()
     .on('drag', function () {
     d3.event.sourceEvent.stopPropagation(); 
@@ -110,7 +140,14 @@ var zoom = d3.behavior.zoom()
     .scaleExtent([0.3, 3.5])
     .on("zoom", zoomed);
 
-  svg = d3.select('#camera').append('svg');
+  svg = d3.select('#camera')
+        .append('svg')
+        .append('g')
+        .call(zoom)
+        .call(drag)
+        .attr("transform", "translate(-3000,-3000)")
+        .attr("id", "world")
+        .append('g');
 
   svg.attr('width', 1200)
     .attr('height', 800);
@@ -122,15 +159,10 @@ var zoom = d3.behavior.zoom()
 
     var drawHexes = function () {
       var hexes = Hexes.find().fetch();
-
-      world = svg.append('g')
-          .call(zoom)
-          .call(drag)
-          .attr("transform", "translate(-3000,-3000)")
-          .attr("id", "world")
-          .append('g')
-          .selectAll(".hex")
-          .data(d3.entries(hexes))
+      data = d3.entries(hexes);
+      data.pop();
+      world = svg.selectAll(".hex")
+          .data(data)
           .enter();
 
       world.append("path")
@@ -138,29 +170,18 @@ var zoom = d3.behavior.zoom()
               console.log(d);
           })
           .attr("class", function (d) {
-            _deps.depend(); 
             return "hex " + d.value.terrain + " " + (_.isEmpty(d.value.owner) ? "unclaimed" : "claimed");
           })
           .attr('id', function (d) {
-            return "id" + d.value._id;
+            return "h" + d.value._id;
           })
           .attr("d", function (d, i) {
-            isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
-            return "M" + (hexRadius * d.value.x * 1.819 + offsetx) + "," + hexRadius * d.value.y * 1.578 + hexbin.hexagon();
+            isOdd(d.value.y) ? offsetx = hexRadius * multiO : offsetx = 0;
+            return "M" + (hexRadius * d.value.x * multiX + offsetx) + "," + hexRadius * d.value.y * multiY + hexbin.hexagon();
           })
           .attr("stroke", function(d) {
-            return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+            return "black";
           })
-          // .attr("stroke-width", function(d) {
-          //   return _.isEmpty(d.value.owner) ? "1px" : "5px";
-          // })          
-          // .attr("stroke-dasharray", function(d) {
-          //   if (d.value.owner) {
-          //     $this = Hexes.findOne({_id: d.value._id});
-          //     dasharray($this.look());
-          //   }
-          //   return _.isEmpty(d.value.owner) ? "1px" : "5px";
-          // })
           .on('click', function(hex) {
              if (focused) {
                   $('#camera').css('opacity', '1');
@@ -170,171 +191,55 @@ var zoom = d3.behavior.zoom()
             })
           .on('mouseover', function(hex) {
             d3.select(this).classed("hovered", true);
-            // d3.select(this).moveToFront();
           })
           .on('mouseout', function(hex) {
             d3.select(this).classed("hovered", false);
           });
 
-          world.append("path")
-              .filter(function(d) {
-                 if (d.value.owner && (Hexes.findOne({_id: d.value._id}).look('se').owner !== d.value.owner)) {
-                  console.log("owner: " + d.value.owner + " at " + d.value.x + ", " + d.value.y + "neighbor: " + Hexes.findOne({_id: d.value._id}).look('se').owner);
-                  return true;
-                 } else {
-                  return false;
-                 }
-                })
-              .attr("d", function (d) {
-                isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
-                return "M" 
-                + (hexRadius * d.value.x * 1.819 + offsetx - 1)
-                + "," 
-                + (hexRadius * d.value.y * 1.578  + hexRadius + 4)
-                + " L"
-                + (hexRadius * d.value.x * 1.819 + offsetx + hexRadius - 4)
-                + ","
-                + (hexRadius * d.value.y * 1.578 + hexRadius / 2 + 1);
-              })
-              .attr("stroke", function(d) {
-                return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
-              })
-              .attr("class", function(d) {
-                 return "wall SE";
-              });
-
-          world.append("path")
-               .filter(function(d) {
-                  if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('sw').owner !== d.value.owner) {
-                   return true;
-                  } else {
-                   return false;
+          $('.hex').tipsy({ 
+                  gravity: 'w', 
+                  html: true, 
+                  title: function() {
+                    var d = this.__data__;
+                    return  d.value.x + ', ' + d.value.y; 
                   }
-                 })
-               .attr("d", function (d) {
-                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
-                 return "M" 
-                 + (hexRadius * d.value.x * 1.819 + offsetx + 1)
-                 + "," 
-                 + (hexRadius * d.value.y * 1.578  + hexRadius + 4)
-                 + " L"
-                 + (hexRadius * d.value.x * 1.819 + offsetx - hexRadius + 4)
-                 + ","
-                 + (hexRadius * d.value.y * 1.578 + hexRadius / 2 + 1);
-               })
-               .attr("stroke", function(d) {
-                 return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
-               })
-              .attr("class", function(d) {
-                 return "wall SW";
-              });
-
-          world.append("path")
-               .filter(function(d) {
-                  if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('w').owner !== d.value.owner) {
-                   return true;
-                  } else {
-                   return false;
-                  }
-                 })
-               .attr("d", function (d) {
-                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
-                 return "M" 
-                 + (hexRadius * d.value.x * 1.819 + offsetx - hexRadius + 5)
-                 + "," 
-                 + (hexRadius * d.value.y * 1.578 + hexRadius / 2 + 3)
-                 + " L"
-                 + (hexRadius * d.value.x * 1.819 + offsetx - hexRadius + 5)
-                 + ","
-                 + (hexRadius * d.value.y * 1.578 - hexRadius / 2 - 3);
-               })
-               .attr("stroke", function(d) {
-                 return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
-               })
-              .attr("class", function(d) {
-                 return "wall W";
-              });
-
-          world.append("path")
-               .filter(function(d) {
-                  if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('nw').owner !== d.value.owner) {
-                   return true;
-                  } else {
-                   return false;
-                  }
-                 })
-               .attr("d", function (d) {
-                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
-                 return "M" 
-                 + (hexRadius * d.value.x * 1.819 + offsetx - hexRadius + 4)
-                 + "," 
-                 + (hexRadius * d.value.y * 1.578 - hexRadius / 2 - 1)
-                 + " L"
-                 + (hexRadius * d.value.x * 1.819 + offsetx + 1)
-                 + ","
-                 + (hexRadius * d.value.y * 1.578 - hexRadius - 4);
-               })
-               .attr("stroke", function(d) {
-                 return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
-               })
-              .attr("class", function(d) {
-                 return "wall NW";
-              });
-
-          world.append("path")
-              .filter(function(d) {
-                 if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('ne').owner !== d.value.owner) {
-                  return true;
-                 } else {
-                  return false;
-                 }
-                })
-               .attr("d", function (d) {
-                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
-                 return "M" 
-                 + (hexRadius * d.value.x * 1.819 + offsetx - 1)
-                 + "," 
-                 + (hexRadius * d.value.y * 1.578 - hexRadius - 4)
-                 + " L"
-                 + (hexRadius * d.value.x * 1.819 + offsetx + hexRadius - 4)
-                 + ","
-                 + (hexRadius * d.value.y * 1.578 - hexRadius / 2 - 1);
-               })
-               .attr("stroke", function(d) {
-                 return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
-               })
-              .attr("class", function(d) {
-                 return "wall NE";
-              });
-
-          world.append("path")
-                .filter(function(d) {
-                   if (d.value.owner && Hexes.findOne({_id: d.value._id}).look('e').owner !== d.value.owner) {
-                    return true;
-                   } else {
-                    return false;
-                   }
-                  })
-               .attr("d", function (d) {
-                 isOdd(d.value.y) ? offsetx = hexRadius * 0.908 : offsetx = 0;
-                 return "M" 
-                 + (hexRadius * d.value.x * 1.819 + offsetx + hexRadius - 5)
-                 + "," 
-                 + (hexRadius * d.value.y * 1.578 + hexRadius / 2 + 3)
-                 + " L"
-                 + (hexRadius * d.value.x * 1.819 + offsetx + hexRadius - 5)
-                 + ","
-                 + (hexRadius * d.value.y * 1.578 - hexRadius / 2 - 3);
-               })
-          .attr("class", function(d) {
-             return "wall E";
-          });
+                });
 
     };
 
+    function drawWalls() {
+      var hexes = Hexes.find().fetch();
+      var walls = svg.selectAll(".wall")
+          .data(d3.entries(hexes).filter(function(d) {
+            _deps.depend();
+            return _.isString(d.value.owner);
+          }));
+
+      console.log(walls);
+      wallEnter = walls.enter();
+          
+      wallEnter.append("path")
+          .attr("d", function (d) {
+            isOdd(d.value.y) ? offsetx = hexRadius * multiO : offsetx = 0;
+            return Template.game.walls((hexRadius * d.value.x * multiX + offsetx), (hexRadius * d.value.y * multiY), hexRadius, Hexes.findOne({_id: d.value._id}).look()).join(",");
+          })
+          .attr("stroke", function (d) {
+            return Meteor.users.findOne({_id: d.value.owner}).colour;
+          })
+          .attr("class", function (d) {
+             return "wall";
+          })
+          .attr('id', function (d) {
+            return "w" + d.value._id;
+          });
+
+      console.log(walls);
+      walls.exit().remove();
+    }
+
     var updateHex = function(data) {
-      hexData = Hexes.findOne({_id: data});
-      hex = d3.select('#id'+data);
+      hexData = Hexes.find({_id: data});
+      hex = d3.select('#h'+data);
       hex.each(function(d) {
         d.value.owner = hexData.owner;
       })
@@ -342,17 +247,44 @@ var zoom = d3.behavior.zoom()
             return "hex " + d.value.terrain + " " + (_.isEmpty(d.value.owner) ? "unclaimed" : "claimed");
           })
       .attr("stroke", function(d) {
-        return _.isEmpty(d.value.owner) ? "black" : Meteor.users.findOne({_id: d.value.owner}).colour;
+        return _.isEmpty(d.value.owner) ? "black" : "white";
       });
+    }
+
+    var updateWall = function(data) {
+      var hexData = Hexes.findOne({_id: data}).fetch();
+      var walls = svg.selectAll(".wall")
+          .data(hexData);
+      console.log(hexData);
+      console.log(walls);
+      wallEnter = walls.enter();
+          
+      wallEnter.append("path")
+          .attr("d", function (d) {
+            isOdd(d.value.y) ? offsetx = hexRadius * multiO : offsetx = 0;
+            return Template.game.walls((hexRadius * d.value.x * multiX + offsetx), (hexRadius * d.value.y * multiY), hexRadius, Hexes.findOne({_id: d.value._id}).look()).join(",");
+          })
+          .attr("stroke", function (d) {
+            return Meteor.users.findOne({_id: d.value.owner}).colour;
+          })
+          .attr("class", function (d) {
+             return "wall";
+          })
+          .attr('id', function (d) {
+            return "w" + d.value._id;
+          });
     }
 
   Hexes.find().observeChanges({
       changed: function(d) {
+        _deps.changed();
         updateHex(d);
+        updateWall(d);
       }
   });
 
   drawHexes();
+  drawWalls();
 
   $('svg').height($('#camera').height());
   $('svg').width($('#camera').width());
@@ -534,8 +466,272 @@ d3.selection.prototype.moveToFront = function() {
 
 function isOdd(num) { return num % 2; }
 
-function dasharray (sides) {
-  
-}
+// tipsy, facebook style tooltips for jquery
+// version 1.0.0a
+// (c) 2008-2010 jason frame [jason@onehackoranother.com]
+// released under the MIT license
 
+(function($) {
+    
+    function maybeCall(thing, ctx) {
+        return (typeof thing == 'function') ? (thing.call(ctx)) : thing;
+    };
+    
+    function isElementInDOM(ele) {
+      while (ele = ele.parentNode) {
+        if (ele == document) return true;
+      }
+      return false;
+    };
+    
+    function Tipsy(element, options) {
+        this.$element = $(element);
+        this.options = options;
+        this.enabled = true;
+        this.fixTitle();
+    };
+    
+    Tipsy.prototype = {
+        show: function() {
+            var title = this.getTitle();
+            if (title && this.enabled) {
+                var $tip = this.tip();
+                
+                $tip.find('.tipsy-inner')[this.options.html ? 'html' : 'text'](title);
+                $tip[0].className = 'tipsy'; // reset classname in case of dynamic gravity
+                $tip.remove().css({top: 0, left: 0, visibility: 'hidden', display: 'block'}).prependTo(document.body);
+                
+                var pos = $.extend({}, this.$element.offset(), {
+                    width: this.$element[0].offsetWidth,
+                    height: this.$element[0].offsetHeight
+                });
+                
+                var actualWidth = $tip[0].offsetWidth,
+                    actualHeight = $tip[0].offsetHeight,
+                    gravity = maybeCall(this.options.gravity, this.$element[0]);
+                
+                var tp;
+                switch (gravity.charAt(0)) {
+                    case 'n':
+                        tp = {top: pos.top + pos.height + this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
+                        break;
+                    case 's':
+                        tp = {top: pos.top - actualHeight - this.options.offset, left: pos.left + pos.width / 2 - actualWidth / 2};
+                        break;
+                    case 'e':
+                        tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth - this.options.offset};
+                        break;
+                    case 'w':
+                        tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width + this.options.offset};
+                        break;
+                }
+                
+                if (gravity.length == 2) {
+                    if (gravity.charAt(1) == 'w') {
+                        tp.left = pos.left + pos.width / 2 - 15;
+                    } else {
+                        tp.left = pos.left + pos.width / 2 - actualWidth + 15;
+                    }
+                }
+                
+                $tip.css(tp).addClass('tipsy-' + gravity);
+                $tip.find('.tipsy-arrow')[0].className = 'tipsy-arrow tipsy-arrow-' + gravity.charAt(0);
+                if (this.options.className) {
+                    $tip.addClass(maybeCall(this.options.className, this.$element[0]));
+                }
+                
+                if (this.options.fade) {
+                    $tip.stop().css({opacity: 0, display: 'block', visibility: 'visible'}).animate({opacity: this.options.opacity});
+                } else {
+                    $tip.css({visibility: 'visible', opacity: this.options.opacity});
+                }
+            }
+        },
+        
+        hide: function() {
+            if (this.options.fade) {
+                this.tip().stop().fadeOut(function() { $(this).remove(); });
+            } else {
+                this.tip().remove();
+            }
+        },
+        
+        fixTitle: function() {
+            var $e = this.$element;
+            if ($e.attr('title') || typeof($e.attr('original-title')) != 'string') {
+                $e.attr('original-title', $e.attr('title') || '').removeAttr('title');
+            }
+        },
+        
+        getTitle: function() {
+            var title, $e = this.$element, o = this.options;
+            this.fixTitle();
+            var title, o = this.options;
+            if (typeof o.title == 'string') {
+                title = $e.attr(o.title == 'title' ? 'original-title' : o.title);
+            } else if (typeof o.title == 'function') {
+                title = o.title.call($e[0]);
+            }
+            title = ('' + title).replace(/(^\s*|\s*$)/, "");
+            return title || o.fallback;
+        },
+        
+        tip: function() {
+            if (!this.$tip) {
+                this.$tip = $('<div class="tipsy"></div>').html('<div class="tipsy-arrow"></div><div class="tipsy-inner"></div>');
+                this.$tip.data('tipsy-pointee', this.$element[0]);
+            }
+            return this.$tip;
+        },
+        
+        validate: function() {
+            if (!this.$element[0].parentNode) {
+                this.hide();
+                this.$element = null;
+                this.options = null;
+            }
+        },
+        
+        enable: function() { this.enabled = true; },
+        disable: function() { this.enabled = false; },
+        toggleEnabled: function() { this.enabled = !this.enabled; }
+    };
+    
+    $.fn.tipsy = function(options) {
+        
+        if (options === true) {
+            return this.data('tipsy');
+        } else if (typeof options == 'string') {
+            var tipsy = this.data('tipsy');
+            if (tipsy) tipsy[options]();
+            return this;
+        }
+        
+        options = $.extend({}, $.fn.tipsy.defaults, options);
+        
+        function get(ele) {
+            var tipsy = $.data(ele, 'tipsy');
+            if (!tipsy) {
+                tipsy = new Tipsy(ele, $.fn.tipsy.elementOptions(ele, options));
+                $.data(ele, 'tipsy', tipsy);
+            }
+            return tipsy;
+        }
+        
+        function enter() {
+            var tipsy = get(this);
+            tipsy.hoverState = 'in';
+            if (options.delayIn == 0) {
+                tipsy.show();
+            } else {
+                tipsy.fixTitle();
+                setTimeout(function() { if (tipsy.hoverState == 'in') tipsy.show(); }, options.delayIn);
+            }
+        };
+        
+        function leave() {
+            var tipsy = get(this);
+            tipsy.hoverState = 'out';
+            if (options.delayOut == 0) {
+                tipsy.hide();
+            } else {
+                setTimeout(function() { if (tipsy.hoverState == 'out') tipsy.hide(); }, options.delayOut);
+            }
+        };
+        
+        if (!options.live) this.each(function() { get(this); });
+        
+        if (options.trigger != 'manual') {
+            var binder   = options.live ? 'live' : 'bind',
+                eventIn  = options.trigger == 'hover' ? 'mouseenter' : 'focus',
+                eventOut = options.trigger == 'hover' ? 'mouseleave' : 'blur';
+            this[binder](eventIn, enter)[binder](eventOut, leave);
+        }
+        
+        return this;
+        
+    };
+    
+    $.fn.tipsy.defaults = {
+        className: null,
+        delayIn: 0,
+        delayOut: 0,
+        fade: false,
+        fallback: '',
+        gravity: 'n',
+        html: false,
+        live: false,
+        offset: 0,
+        opacity: 0.8,
+        title: 'title',
+        trigger: 'hover'
+    };
+    
+    $.fn.tipsy.revalidate = function() {
+      $('.tipsy').each(function() {
+        var pointee = $.data(this, 'tipsy-pointee');
+        if (!pointee || !isElementInDOM(pointee)) {
+          $(this).remove();
+        }
+      });
+    };
+    
+    // Overwrite this method to provide options on a per-element basis.
+    // For example, you could store the gravity in a 'tipsy-gravity' attribute:
+    // return $.extend({}, options, {gravity: $(ele).attr('tipsy-gravity') || 'n' });
+    // (remember - do not modify 'options' in place!)
+    $.fn.tipsy.elementOptions = function(ele, options) {
+        return $.metadata ? $.extend({}, options, $(ele).metadata()) : options;
+    };
+    
+    $.fn.tipsy.autoNS = function() {
+        return $(this).offset().top > ($(document).scrollTop() + $(window).height() / 2) ? 's' : 'n';
+    };
+    
+    $.fn.tipsy.autoWE = function() {
+        return $(this).offset().left > ($(document).scrollLeft() + $(window).width() / 2) ? 'e' : 'w';
+    };
+    
+    /**
+     * yields a closure of the supplied parameters, producing a function that takes
+     * no arguments and is suitable for use as an autogravity function like so:
+     *
+     * @param margin (int) - distance from the viewable region edge that an
+     *        element should be before setting its tooltip's gravity to be away
+     *        from that edge.
+     * @param prefer (string, e.g. 'n', 'sw', 'w') - the direction to prefer
+     *        if there are no viewable region edges effecting the tooltip's
+     *        gravity. It will try to vary from this minimally, for example,
+     *        if 'sw' is preferred and an element is near the right viewable 
+     *        region edge, but not the top edge, it will set the gravity for
+     *        that element's tooltip to be 'se', preserving the southern
+     *        component.
+     */
+     $.fn.tipsy.autoBounds = function(margin, prefer) {
+    return function() {
+      var dir = {ns: prefer[0], ew: (prefer.length > 1 ? prefer[1] : false)},
+          boundTop = $(document).scrollTop() + margin,
+          boundLeft = $(document).scrollLeft() + margin,
+          $this = $(this);
 
+      if ($this.offset().top < boundTop) dir.ns = 'n';
+      if ($this.offset().left < boundLeft) dir.ew = 'w';
+      if ($(window).width() + $(document).scrollLeft() - $this.offset().left < margin) dir.ew = 'e';
+      if ($(window).height() + $(document).scrollTop() - $this.offset().top < margin) dir.ns = 's';
+
+      return dir.ns + (dir.ew ? dir.ew : '');
+    }
+  };
+    
+})(jQuery);
+
+Array.prototype.move = function (old_index, new_index) {
+    if (new_index >= this.length) {
+        var k = new_index - this.length;
+        while ((k--) + 1) {
+            this.push(undefined);
+        }
+    }
+    this.splice(new_index, 0, this.splice(old_index, 1)[0]);
+    return this; // for testing purposes
+};
