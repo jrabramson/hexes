@@ -238,7 +238,7 @@ var zoom = d3.behavior.zoom()
     }
 
     var updateHex = function(data) {
-      hexData = Hexes.find({_id: data});
+      hexData = Hexes.findOne({_id: data});
       hex = d3.select('#h'+data);
       hex.each(function(d) {
         d.value.owner = hexData.owner;
@@ -252,7 +252,7 @@ var zoom = d3.behavior.zoom()
     }
 
     var updateWall = function(data) {
-      var hexData = Hexes.findOne({_id: data}).fetch();
+      var hexData = Hexes.find({_id: data}).fetch();
       var walls = svg.selectAll(".wall")
           .data(hexData);
       console.log(hexData);
