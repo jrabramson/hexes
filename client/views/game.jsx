@@ -215,6 +215,7 @@ var zoom = d3.behavior.zoom()
             return _.isString(d.value.owner);
           }));
 
+      walls.exit().remove();
       console.log(walls);
       wallEnter = walls.enter();
           
@@ -234,7 +235,7 @@ var zoom = d3.behavior.zoom()
           });
 
       console.log(walls);
-      walls.exit().remove();
+      
     }
 
     var updateHex = function(data) {
