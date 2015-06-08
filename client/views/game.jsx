@@ -209,14 +209,13 @@ var zoom = d3.behavior.zoom()
 
     function drawWalls() {
       var hexes = Hexes.find().fetch();
-      var walls = svg.selectAll(".wall")
+      walls = svg.selectAll(".wall")
           .data(d3.entries(hexes).filter(function(d) {
             _deps.depend();
             return _.isString(d.value.owner);
           }));
-
-      walls.exit().remove();
       console.log(walls);
+
       wallEnter = walls.enter();
           
       wallEnter.append("path")
@@ -233,6 +232,8 @@ var zoom = d3.behavior.zoom()
           .attr('id', function (d) {
             return "w" + d.value._id;
           });
+          
+      wallEnter.exit().remove();
 
       console.log(walls);
       
@@ -254,9 +255,7 @@ var zoom = d3.behavior.zoom()
 
     var updateWall = function(data) {
       var hexData = Hexes.find({_id: data}).fetch();
-      var walls = svg.selectAll(".wall")
-          .data(hexData);
-      console.log(hexData);
+      walls.push(hexData);
       console.log(walls);
       wallEnter = walls.enter();
           
