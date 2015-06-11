@@ -233,7 +233,7 @@ var zoom = d3.behavior.zoom()
             return "w" + d.value._id;
           });
           
-      wallEnter.exit().remove();
+      // wallEnter.exit().remove();
 
       console.log(walls);
       
