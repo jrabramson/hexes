@@ -14,7 +14,13 @@ Template.sidebar.helpers({
   }
 });
 
-var svg, world, walls, width = 10000, height = 10000, x, gameColumns = 100, gameRows = 100, blocks = [
+Template.gameTimer.helpers({
+  seconds: function () {
+    return moment(Timer.findOne().remaining).format('mm:ss');
+  }
+});
+
+var svg, world, walls, cache, width = 10000, height = 10000, x, gameColumns = 100, gameRows = 100, blocks = [
   { x: 0, y: 0 }
 ];
   var hexRadius = d3.min([width/((gameColumns + 0.5) * Math.sqrt(3)),
@@ -40,8 +46,8 @@ Template.game.rendered = function () {
   var hexMenu = [
       {
           title: function(d) {
-            console.log("x: " + d.value.x);
-            console.log("y: " + d.value.y);
+            // console.log("x: " + d.value.x);
+            // console.log("y: " + d.value.y);
             userDeps.depend(); 
             if (!Meteor.user()) {
               return "Log in to play";
@@ -63,7 +69,7 @@ Template.game.rendered = function () {
               return;
             }
             if (Meteor.user()) {
-              Meteor.call('buyHex', d.value, function (error, result) { });
+              Meteor.call('buyHex', d.value);
             }
           }
       },
@@ -106,20 +112,20 @@ Template.game.rendered = function () {
   }
 
   Template.game.walls = function(x, y, radius, placement) {
-      walls = ["M" + x + "," + y];
+      buildWalls = ["M" + x + "," + y];
       placement.move(5, 0).unshift(0);
-      walls.push("m" + hexagon(radius)[0][0] + "," + hexagon(radius)[0][1]);
+      buildWalls.push("m" + hexagon(radius)[0][0] + "," + hexagon(radius)[0][1]);
       for (i=1;i<=6;i++) {
         j = i;
         if (i === 6) {
-          walls.push("M" + x + "," + y);
-          walls.push(' m' + hexagon(radius)[0][0] + "," + hexagon(radius)[0][1]);
+          buildWalls.push("M" + x + "," + y);
+          buildWalls.push(' m' + hexagon(radius)[0][0] + "," + hexagon(radius)[0][1]);
           j = 3;
         }
-        placement[i] === 1 ? mod = ' m' : mod = ' l';
-        walls.push(mod + hexagon(radius)[j][0] + "," + hexagon(radius)[j][1]);
+        placement[i] === 0 ? mod = ' m' : mod = ' l';
+        buildWalls.push(mod + hexagon(radius)[j][0] + "," + hexagon(radius)[j][1]);
       }
-      return walls;
+      return buildWalls.join(",");
     };
   
   var multiY = 1.58;
@@ -145,12 +151,15 @@ var zoom = d3.behavior.zoom()
         .append('g')
         .call(zoom)
         .call(drag)
+        .on("dblclick.zoom", null)
         .attr("transform", "translate(-3000,-3000)")
         .attr("id", "world")
         .append('g');
 
   svg.attr('width', 1200)
     .attr('height', 800);
+
+  d3.select("svg").on("dblclick.zoom", null);
 
     var defs = svg.append("defs");
 
@@ -164,6 +173,7 @@ var zoom = d3.behavior.zoom()
       world = svg.selectAll(".hex")
           .data(data)
           .enter();
+
 
       world.append("path")
           .on('contextmenu', d3.contextMenu(hexMenu), function(d) {
@@ -196,35 +206,32 @@ var zoom = d3.behavior.zoom()
             d3.select(this).classed("hovered", false);
           });
 
-          $('.hex').tipsy({ 
-                  gravity: 'w', 
-                  html: true, 
-                  title: function() {
-                    var d = this.__data__;
-                    return  d.value.x + ', ' + d.value.y; 
-                  }
-                });
+          // $('.hex').tipsy({ 
+          //         gravity: 'w', 
+          //         html: true, 
+          //         title: function() {
+          //           var d = this.__data__;
+          //           return  d.value.x + ', ' + d.value.y + '<BR>' + d.value.walls + '<BR>' + d.value._id; 
+          //         }
+          //       });
 
     };
 
     function drawWalls() {
       var hexes = Hexes.find().fetch();
+      data = d3.entries(hexes);
+      data.pop();
       walls = svg.selectAll(".wall")
-          .data(d3.entries(hexes).filter(function(d) {
-            _deps.depend();
-            return _.isString(d.value.owner);
-          }));
-      console.log(walls);
-
+          .data(data);
       wallEnter = walls.enter();
           
       wallEnter.append("path")
           .attr("d", function (d) {
             isOdd(d.value.y) ? offsetx = hexRadius * multiO : offsetx = 0;
-            return Template.game.walls((hexRadius * d.value.x * multiX + offsetx), (hexRadius * d.value.y * multiY), hexRadius, Hexes.findOne({_id: d.value._id}).look()).join(",");
+            return Template.game.walls((hexRadius * d.value.x * multiX + offsetx), (hexRadius * d.value.y * multiY), hexRadius, d.value.walls);
           })
           .attr("stroke", function (d) {
-            return Meteor.users.findOne({_id: d.value.owner}).colour;
+            return d.value.owner ? Meteor.users.findOne({_id: d.value.owner}).colour : "black";
           })
           .attr("class", function (d) {
              return "wall";
@@ -232,18 +239,15 @@ var zoom = d3.behavior.zoom()
           .attr('id', function (d) {
             return "w" + d.value._id;
           });
-          
-      // wallEnter.exit().remove();
-
-      console.log(walls);
       
     }
 
     var updateHex = function(data) {
       hexData = Hexes.findOne({_id: data});
       hex = d3.select('#h'+data);
+
       hex.each(function(d) {
-        d.value.owner = hexData.owner;
+        d.value = hexData;
       })
       .attr("class", function (d) {
             return "hex " + d.value.terrain + " " + (_.isEmpty(d.value.owner) ? "unclaimed" : "claimed");
@@ -254,25 +258,19 @@ var zoom = d3.behavior.zoom()
     }
 
     var updateWall = function(data) {
-      var hexData = Hexes.find({_id: data}).fetch();
-      walls.push(hexData);
-      console.log(walls);
-      wallEnter = walls.enter();
-          
-      wallEnter.append("path")
-          .attr("d", function (d) {
-            isOdd(d.value.y) ? offsetx = hexRadius * multiO : offsetx = 0;
-            return Template.game.walls((hexRadius * d.value.x * multiX + offsetx), (hexRadius * d.value.y * multiY), hexRadius, Hexes.findOne({_id: d.value._id}).look()).join(",");
-          })
-          .attr("stroke", function (d) {
-            return Meteor.users.findOne({_id: d.value.owner}).colour;
-          })
-          .attr("class", function (d) {
-             return "wall";
-          })
-          .attr('id', function (d) {
-            return "w" + d.value._id;
-          });
+      var hexData = Hexes.findOne({_id: data});
+      wallUpdate = d3.select('#w'+data);
+
+      wallUpdate.each(function(d) {
+        d.value = hexData;
+      })
+      .attr("d", function (d) {
+        isOdd(d.value.y) ? offsetx = hexRadius * multiO : offsetx = 0;
+        return Template.game.walls((hexRadius * d.value.x * multiX + offsetx), (hexRadius * d.value.y * multiY), hexRadius, d.value.walls);
+      })
+      .attr("stroke", function (d) {
+        return d.value.owner ? Meteor.users.findOne({_id: d.value.owner}).colour : "black";
+      });
     }
 
   Hexes.find().observeChanges({
