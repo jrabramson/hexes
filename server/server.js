@@ -41,7 +41,7 @@ Meteor.startup(function () {
 
   	}
 
-  function getRandomColor() {
+  function getRandomColour() {
       var letters = '0123456789ABCDEF'.split('');
       var color = '#';
       for (var i = 0; i < 6; i++ ) {
@@ -61,13 +61,25 @@ Meteor.startup(function () {
   });
 
   Meteor.publish("allUserData", function () {
-      return Meteor.users.find({}, {fields: { 'username': 1, 'owned': 1, 'colour': 1 }});
+    return Meteor.users.find({}, {
+      fields: { 
+        'username': 1, 
+        'owned'   : 1, 
+        'colour'  : 1 
+      }
+    });
   });
 
-  Meteor.publish("wealth", function () {
-      return Meteor.users.find(Meteor.userId, {fields: { 'wealth': 1 }});
-
+  Meteor.publish("resources", function () {
+    return Meteor.users.find(Meteor.userId, {
+      fields: { 
+        'population': 1,
+        'wealth'    : 1,
+        'resources' : 1
+      }
+    });
   });
+
   Meteor.publish("timer", function () {
       return Timer.find({ world: Worlds.findOne({ live: true })._id });
   });
@@ -79,7 +91,7 @@ Meteor.startup(function () {
       current_user = Meteor.users.find({_id: this.userId}).fetch();
       if (!current_user.hexes) {
         Hexes.update(hex._id, {$set: {owner: this.userId}});
-        Meteor.users.update( { _id: Meteor.userId() }, { $set: {owned: hex._id} });
+        Meteor.users.update( { _id: Meteor.userId() }, { $push: {owned: hex._id} });
       }  
     },
     updateWall : function(hexes){
@@ -93,13 +105,18 @@ Meteor.startup(function () {
   //...............Account Hooks
 
   Accounts.onCreateUser( function (options, user) {
+      user.owned = [];
       user.wealth = 100;
-      user.population = 100;
-      user.resources = {};
-      user.resources.wood = 100;
-      user.resources.ore = 100;
-      user.resources.glass = 100;
-      user.colour = getRandomColor();
+      user.population = 1000;
+      user.resources = {
+        wood : 100,
+        ore  : 100,
+        glass: 100,
+        grain: 100,
+        fish : 100,
+        brick : 100
+      }
+      user.colour = getRandomColour();
       return user;
   });
 
@@ -142,6 +159,7 @@ Meteor.startup(function () {
   function turn() {
     startTimer(turnTime);
     Timer.update(timer, { $inc: { turns: 1 }});
+    harvest();
     Meteor._debug("Turn " + Timer.findOne(timer).turns);
   }
 
@@ -153,7 +171,7 @@ Meteor.startup(function () {
     var elapsed = now() - startTime;
     var cnt = countAmt - elapsed;
     // Meteor._debug("Tick");
-    if (cnt > 0) {''
+    if (cnt > 0) {
       Timer.update(timer, { $set: { remaining: cnt }});
     } else {
       Timer.update(timer, { $set: { remaining: 0 }});
@@ -169,6 +187,33 @@ Meteor.startup(function () {
     interval = Meteor.setInterval(tick, 1000);  
   }
 
+  function harvest() {
+    claimed = Hexes.find({ owner: { $type: 2 } });
+    claimed.forEach(function(hex) {
+      console.log(hex);
+      switch (hex.terrain) {
+        case 'grass':
+          Meteor.users.update(hex.owner, { $inc: { "resources.grain": 1 } });
+          break;
+        case 'forest':
+          Meteor.users.update(hex.owner, { $inc: { "resources.wood": 1 } });
+          break;
+        case 'ground':
+          Meteor.users.update(hex.owner, { $inc: { "resources.brick": 1 } });
+          break;
+        case 'stone':
+          Meteor.users.update(hex.owner, { $inc: { "resources.ore": 1 } });
+          break;
+        case 'water':
+          Meteor.users.update(hex.owner, { $inc: { "resources.fish": 1 } });
+          break;
+        case 'sand':
+          Meteor.users.update(hex.owner, { $inc: { "resources.glass": 1 } });
+          break;  
+      }
+    });
+  }
+  
   turn();
 
 });

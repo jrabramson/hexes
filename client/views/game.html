@@ -42,7 +42,16 @@
     {{> gameTimer}}
     {{#with user}}
       <p class='sidebar_tooltip'> Hexes: {{owned.length}} </p>
+      <p class='sidebar_tooltip'> Population: {{population}} </p>
       <p class='sidebar_tooltip'> Wealth: {{wealth}} </p>
+      {{#with resources}}
+        <p class='sidebar_tooltip'> Wood  : {{wood}} </p>
+        <p class='sidebar_tooltip'> Ore   : {{ore}} </p>
+        <p class='sidebar_tooltip'> Glass : {{glass}} </p>
+        <p class='sidebar_tooltip'> Grain : {{grain}} </p>
+        <p class='sidebar_tooltip'> Fish  : {{fish}} </p>
+        <p class='sidebar_tooltip'> Brick : {{brick}} </p>
+      {{/with}}
     {{/with}}
   </div>
 </template>
