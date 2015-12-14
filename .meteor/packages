@@ -1,8 +1,5 @@
 standard-app-packages
 iron:router
-bootstrap
-reactjs:react
-robertlowe:meteor-phaser
 mizzao:jquery-ui
 
 
@@ -16,3 +13,6 @@ accounts-password
 matb33:collection-hooks
 artwells:queue
 momentjs:moment
+standard-minifiers
+reactjs:react
+digioak:meteor-phaser
