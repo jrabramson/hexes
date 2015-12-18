@@ -8,6 +8,7 @@ hexRectangleHeight = sideLength + 2 * hexHeight;
 hexRectangleWidth = 2 * hexRadius;
 
 game = {};
+collection = [];
 cursors = null;
 world = null;
 hover = null;
@@ -18,3 +19,5 @@ worldScale = 1;
 ui = null;
 wasd = null;
 tweening = false;
+
+newMenu = {};

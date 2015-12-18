@@ -1,8 +1,8 @@
 Template.game.helpers({
   hexes: function() {
-      return Hexes.find();
+    return Hexes.find();
   },
-  user: function () {
+  user: function() {
     return Meteor.user();
   }
 });
@@ -16,13 +16,17 @@ Template.sidebar.helpers({
   }
 });
 
-Template.game.events({
-    
+Template.menu.helpers({
+  data: function() {
+    return newMenu;
+  }
+});
+
+Meteor.startup(function() {
 });
 
 Template.game.rendered = function () {
-
-	game = new Phaser.Game(
+  game = new Phaser.Game(
     window.innerWidth, 
     window.innerHeight, 
     Phaser.CANVAS, 
@@ -34,7 +38,12 @@ Template.game.rendered = function () {
       render: render 
     }
   );
-	
+}
+
+Template.menu.rendered = function() {
+  Session.set('hovered', {});
+  Session.set('option', {});
+  ReactDOM.render(<Menu />, document.getElementById("menu"));
 }
 
 Hexes.find().observeChanges({

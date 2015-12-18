@@ -14,5 +14,5 @@ matb33:collection-hooks
 artwells:queue
 momentjs:moment
 standard-minifiers
-reactjs:react
-digioak:meteor-phaser
+react
+gnomathibus:meteor-phaser

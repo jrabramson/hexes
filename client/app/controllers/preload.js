@@ -1,7 +1,8 @@
 preload = function() {
     game.load.atlas(
-        'hexsheet',
-        'images/hex_sprites4.png',
-        'images/hex_sprites4.json'
+        'spritesheet',
+        'images/spritesheet/sheet3.png',
+        'images/spritesheet/sheet3.json', 
+        Phaser.Loader.TEXTURE_ATLAS_JSON_HASH
     );
 }

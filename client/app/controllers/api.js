@@ -1,17 +1,21 @@
 updateHex = function(updated_id) {
-	old = world.children.filter(function(hex) {
+	var hex = world.children.filter(function(hex) {
 		return hex._id == updated_id
-	});
+	})[0];
 	hexData = Hexes.findOne({_id: updated_id});
-	old[0].owner = hexData.owner
-	old[0].ownerName = hexData.ownerName
-	old[0].structure = hexData.structure
-	var decorations = decorate(old[0]);
-	decorations.forEach(function(decoration) {
-		old[0].addChild(decoration);
-	});
+	
+	hex.owner = hexData.owner;
+	hex.ownerName = hexData.ownerName;
+	hex.structure = hexData.structure;
+	hex.walls = hexData.walls;
+	hex.colour = hexData.colour;
+
+	var decorations = decorate(hex);
+	// decorations.forEach(function(decoration) {
+	// 	hex.addChild(decoration);
+	// });
 	hexSelect(world.focusedHex);
-	tooltip(old[0]);
+	// tooltip(hex);
 }
 
 buyHex = function() {

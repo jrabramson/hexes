@@ -104,10 +104,11 @@ Meteor.startup(function () {
       current_user = Meteor.users.findOne({_id: this.userId});
       hex_tax = current_user.owned.length * 50;
       if (hex.owner == null && current_user.wealth >= hex_tax) {
+        var walls = Hexes.findOne({_id: hex._id}).look()
         console.log('purchasing: ' + hex.x + ', ' + hex.y)
         Hexes.update(
           hex._id, 
-          { $set: { owner: this.userId, ownerName: current_user.username} }
+          { $set: { owner: this.userId, ownerName: current_user.username, colour: current_user.colour, walls: walls } }
         );
         Meteor.users.update( 
           { _id: Meteor.userId() }, 
@@ -212,7 +213,7 @@ Meteor.startup(function () {
         fish : 100,
         brick: 100
       }
-      user.colour = getRandomColour();
+      user.colour = Math.random() * 0xffffff;
       return user;
   });
 

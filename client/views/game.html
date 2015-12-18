@@ -33,18 +33,14 @@
       {{/with}}
     </div>    
     <div class='sidebar_section'>
-      
+      {{> menu}}
     </div>
-    {{#with user}}
-      
-      {{#with resources}}
-        <div class='sidebar_tooltip'> Wood  : {{wood}} </div>
-        <div class='sidebar_tooltip'> Ore   : {{ore}} </div>
-        <div class='sidebar_tooltip'> Glass : {{glass}} </div>
-        <div class='sidebar_tooltip'> Grain : {{grain}} </div>
-        <div class='sidebar_tooltip'> Fish  : {{fish}} </div>
-        <div class='sidebar_tooltip'> Brick : {{brick}} </div>
-      {{/with}}
-    {{/with}}
   </div>
 </template>
+
+<template name="menu">
+  <div id="menu"></div>
+</template>
+
+
+

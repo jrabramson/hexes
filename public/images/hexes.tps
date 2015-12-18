@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>3</int>
         <key>texturePackerVersion</key>
-        <string>3.9.4</string>
+        <string>4.0.1</string>
         <key>fileName</key>
         <string>/Users/Jesse/Code/hexes/public/images/hexes.tps</string>
         <key>autoSDSettings</key>
@@ -36,9 +36,9 @@
         <key>dpi</key>
         <uint>72</uint>
         <key>dataFormat</key>
-        <string>phaser-json-array</string>
+        <string>phaser-json-hash</string>
         <key>textureFileName</key>
-        <filename>hex_sprites3.png</filename>
+        <filename>spritesheet/sheet3.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>pvrCompressionQuality</key>
@@ -110,7 +110,7 @@
             <key>sizeConstraints</key>
             <enum type="AlgorithmSettings::SizeConstraints">AnySize</enum>
             <key>forceSquared</key>
-            <true/>
+            <false/>
             <key>forceWordAligned</key>
             <false/>
             <key>maxRects</key>
@@ -147,7 +147,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>hex_sprites3.json</filename>
+                <filename>spritesheet/sheet3.json</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -175,14 +175,16 @@
             <double>1</double>
             <key>scaleMode</key>
             <enum type="ScaleMode">Smooth</enum>
-            <key>innerPadding</key>
-            <uint>0</uint>
             <key>extrude</key>
             <uint>0</uint>
             <key>trimThreshold</key>
             <uint>1</uint>
+            <key>trimMargin</key>
+            <uint>1</uint>
             <key>trimMode</key>
             <enum type="SpriteSettings::TrimMode">Trim</enum>
+            <key>tracerTolerance</key>
+            <int>200</int>
             <key>heuristicMask</key>
             <false/>
             <key>pivotPoint</key>
@@ -190,9 +192,6 @@
         </struct>
         <key>fileList</key>
         <array>
-            <filename>ui/menu.png</filename>
-            <filename>ui/button.png</filename>
-            <filename>ui/buttonpressed.png</filename>
             <filename>tileset/Tiles/cactus1.png</filename>
             <filename>tileset/Tiles/cactus2.png</filename>
             <filename>tileset/Tiles/forest.png</filename>
@@ -217,11 +216,8 @@
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/ring4.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/roof1.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/roof4.png</filename>
-            <filename>tileset/Tiles/sand.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/roof2.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/roof3.png</filename>
-            <filename>ui/buttonsm.png</filename>
-            <filename>ui/buttonsmpressed.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/level1-obsidian-1.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/level1-obsidian-2.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/level1-sandstone-1.png</filename>
@@ -238,6 +234,15 @@
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/level2-stone-2.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/level2-wood-1.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/level2-wood-2.png</filename>
+            <filename>ui-circle.png</filename>
+            <filename>tileset/Tiles/sand.png</filename>
+            <filename>flag.png</filename>
+            <filename>tileset/wall-sw.png</filename>
+            <filename>tileset/wall-e.png</filename>
+            <filename>tileset/wall-ne.png</filename>
+            <filename>tileset/wall-nw.png</filename>
+            <filename>tileset/wall-se.png</filename>
+            <filename>tileset/wall-w.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
