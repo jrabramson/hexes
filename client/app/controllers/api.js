@@ -9,13 +9,9 @@ updateHex = function(updated_id) {
 	hex.structure = hexData.structure;
 	hex.walls = hexData.walls;
 	hex.colour = hexData.colour;
+	decorate(hex);
 
-	var decorations = decorate(hex);
-	// decorations.forEach(function(decoration) {
-	// 	hex.addChild(decoration);
-	// });
 	hexSelect(world.focusedHex);
-	// tooltip(hex);
 }
 
 buyHex = function() {

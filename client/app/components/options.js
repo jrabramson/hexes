@@ -34,6 +34,10 @@ buildOptions = function() {
 	addOption('obsidianTower', tower('obsidian'), buyTower, {type: 1, material: 'obsidian'});
 }
 
+tower = function(type) {
+	return 'level'+ 2 + '-' + type + '-' + 1
+}
+
 addOption = function(name, icon, func, args, x, y) {
 	x = x || -9999;
 	y = y || -9999;

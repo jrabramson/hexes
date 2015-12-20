@@ -7,8 +7,6 @@ buildDecoration = function(sprite, min, max, variants, scale, elev, moves) {
 				x, y, 'spritesheet',
 				sprite + (variants > 1 ? game.rnd.integerInRange(1, variants) : '')
 			);
-		// deco.autoCull = true;
-		// deco.anchor.setTo(0,0);
 		deco.scale.setTo(scale);
 		decorations.push(deco);
 	}
@@ -17,52 +15,44 @@ buildDecoration = function(sprite, min, max, variants, scale, elev, moves) {
 
 decorate = function(hex) {
 	hex.children.forEach(function(deco) {
-		console.log(deco);
-		deco.destroy();
+		deco.kill();
 	});
 
-	// if (hex.structure.level > 0) {
-	// 	var buildings = [];
-	// 	for (var i=0;i<hex.structure.level;i++) {
-	// 		var step = buildDecoration(
-	// 			'level'+Math.min(2,i+1)+'-'+hex.structure.material[i]+'-'+hex.structure.variant[i], 
-	// 			1, 1, 0, 0.8, (18 * i), false
-	// 		);
-	// 		buildings = buildings.concat(step);
-	// 	}
-	// 	if (hex.structure.roof) {
-	// 		buildings = buildings.concat(buildDecoration('roof', 1, 1, 4, 0.8, (16*(hex.structure.level-1)) + 20, false));
-	// 	} else {
-	// 		buildings = buildings.concat(buildDecoration('ring', 1, 1, 4, 0.8, (16*(hex.structure.level-1)) + 10, false));
-	// 	}
-	// 	return buildings;
-	// }
-
-	// buildings.forEach(function(decoration) {
-	// 	hex.addChild(decoration);
-	// });
-
-	var wallCount = 0
+	var wallCount = 5;
 	var wallMap = ['e', 'se', 'sw', 'w', 'nw', 'ne'];
 	for (var wall in hex.walls) {
-		if (hex.walls[wall] === 1) {
+		if (hex.walls[wallCount] === 1) {
 			var wall = game.add.image(33, 45, 'spritesheet', 'wall-' + wallMap[wallCount]);
 			wall.anchor.setTo(0.5);
 			wall.tint = hex.colour;
 			hex.addChild(wall);
 		}
-		wallCount++;
+		wallCount--;
+
+		if (wallCount == 3) {
+			construct(hex);
+		}
+	}
+}
+
+construct = function(hex) {
+	var buildings = [];
+	if (hex.structure.level > 0) {
+		for (var i=0;i<hex.structure.level;i++) {
+			var step = buildDecoration(
+				'level'+Math.min(2,i+1)+'-'+hex.structure.material[i]+'-'+hex.structure.variant[i], 
+				1, 1, 0, 0.8, (18 * i), false
+			);
+			buildings = buildings.concat(step);
+		}
+		if (hex.structure.roof) {
+			buildings = buildings.concat(buildDecoration('roof', 1, 1, 4, 0.8, (16*(hex.structure.level-1)) + 20, false));
+		} else {
+			buildings = buildings.concat(buildDecoration('ring', 1, 1, 4, 0.8, (16*(hex.structure.level-1)) + 10, false));
+		}
 	}
 
-
-	// switch (hex.terrain) {
-	// 	case 'forest':
-	// 		return buildDecoration('tree', 1, 1, 3, 0.3, 0, true);
-	// 	case 'sand':
-	// 		return buildDecoration('cactus', 0, 1, 2, 0.2, 0, true);
-	// 	case 'stone':
-	// 		return buildDecoration('icon_stone', 0, 1, 1, 0.2, 0, true);
-	// 	default:
-	// 		return [];
-	// }
+	buildings.forEach(function(decoration) {
+		hex.addChild(decoration);
+	});
 }

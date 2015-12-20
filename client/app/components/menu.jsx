@@ -34,13 +34,27 @@ Hovered = React.createClass({
 Option = React.createClass({
 	render() {
 		var option = this.props.option;
+		var option_cost = this.cost(option.material);
 		return <div className='option'>
 			<div className={(option.material || '') + ' material'}>
 				{option.material || ''}
 			</div>
-			<div className={(option.type   || '') + ' type'}>
-				{option.type || ''}
-			</div>
+			{_.map(option_cost, (m, v) => {
+				return <div key={v} className={v}>
+					<span>{v}:&nbsp;</span> 
+					<span>{m}</span> 
+				</div>;
+			})}
 		</div>;
+	},
+	cost(material) {
+		var cost_map = {
+		  "wood": { 'wealth': 50, "wood": 100, "glass": 50 },
+		  "sandstone": { 'wealth': 50, "brick": 100, "glass": 50 },
+		  "stone": { 'wealth': 50, "brick": 100, "glass": 50 },
+		  "obsidian": { 'wealth': 50, "brick": 100, "ore": 100, "glass": 50 }
+		}
+
+		return cost_map[material] || [];
 	}
 });

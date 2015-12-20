@@ -121,9 +121,9 @@ Meteor.startup(function () {
       var towerCost = function(struct) {
         var cost_map = {
           "wood": { $inc: { wealth: -50, "resources.wood": -100, "resources.glass": -50 } },
-          "sandstone": { $inc: { wealth: -50, "resources.stone": -100, "resources.glass": -50 } },
-          "stone": { $inc: { wealth: -50, "resources.stone": -100, "resources.glass": -50 } },
-          "obsidian": { $inc: { wealth: -50, "resources.stone": -100, "resources.ore": -100, "resources.glass": -50 } }
+          "sandstone": { $inc: { wealth: -50, "resources.brick": -100, "resources.glass": -50 } },
+          "stone": { $inc: { wealth: -50, "resources.brick": -100, "resources.glass": -50 } },
+          "obsidian": { $inc: { wealth: -50, "resources.brick": -100, "resources.ore": -100, "resources.glass": -50 } }
         }
         return cost_map[struct.material]
       }
@@ -137,17 +137,17 @@ Meteor.startup(function () {
           },
           "sandstone": function() {
             return (hex.terrain == "sand" 
-              && current_user.resources.stone >= 50 
+              && current_user.resources.brick >= 50 
               && current_user.resources.glass >= 50
               && current_user.wealth >= 50);
           },
           "stone": function() {
-            return (current_user.resources.stone >= 100 
+            return (current_user.resources.brick >= 100 
               && current_user.resources.glass >= 50
               && current_user.wealth >= 50);
           },
           "obsidian": function() {
-            return (current_user.resources.stone >= 100 
+            return (current_user.resources.brick >= 100 
               && current_user.resources.ore >= 100 
               && current_user.resources.glass >= 50 
               && current_user.wealth >= 50);
