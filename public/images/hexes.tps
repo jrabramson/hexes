@@ -38,7 +38,7 @@
         <key>dataFormat</key>
         <string>phaser-json-hash</string>
         <key>textureFileName</key>
-        <filename>spritesheet/sheet3.png</filename>
+        <filename>spritesheet/sheet4.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>pvrCompressionQuality</key>
@@ -147,7 +147,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>spritesheet/sheet3.json</filename>
+                <filename>spritesheet/sheet4.json</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -237,12 +237,12 @@
             <filename>ui-circle.png</filename>
             <filename>tileset/Tiles/sand.png</filename>
             <filename>flag.png</filename>
-            <filename>tileset/wall-sw.png</filename>
-            <filename>tileset/wall-e.png</filename>
-            <filename>tileset/wall-ne.png</filename>
-            <filename>tileset/wall-nw.png</filename>
-            <filename>tileset/wall-se.png</filename>
-            <filename>tileset/wall-w.png</filename>
+            <filename>tileset/sketch/wall-e.png</filename>
+            <filename>tileset/sketch/wall-ne.png</filename>
+            <filename>tileset/sketch/wall-nw.png</filename>
+            <filename>tileset/sketch/wall-se.png</filename>
+            <filename>tileset/sketch/wall-sw.png</filename>
+            <filename>tileset/sketch/wall-w.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

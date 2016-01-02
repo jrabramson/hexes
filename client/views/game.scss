@@ -36,23 +36,37 @@ svg {
 			flex-flow: wrap;
 			display: flex;
 			.sidebar_resource {
+					-webkit-touch-callout: none;
+			    -webkit-user-select: none;
+			    -khtml-user-select: none;
+			    -moz-user-select: none;
+			    -ms-user-select: none;
+			    user-select: none;
 			    text-align: center;
 			    width: 50%;
 			    height: 33.33%;
 			    display: flex;
 			    border: 1px solid #999;
-			    justify-content: center;
+			    justify-content: space-around;
 			    align-items: center;
+			    .buy, .sell {
+			    	cursor: pointer;
+			    }
 			}
 		}
 		&:nth-of-type(4) {
 			// background-color: #000d2f;
 			background-color: white;
 			padding: 0px;
-			.hovered, .option {
+			.option {
+				width: 70%;
+				h3 {
+					margin: 0;
+				}
+			}
+			.hovered {
 				width: 30%;
-				vertical-align: top;
-				display: inline-block;
+				border-right: 1px solid;
 				div {
 					min-height: 25px;
 					transition: all 0.3s;
@@ -75,6 +89,11 @@ svg {
 						background: #7BDBE6;
 					}
 				}
+			}
+			.hovered, .option {
+				vertical-align: top;
+				display: inline-block;
+				height: 100%;
 			}
 		}
 	}

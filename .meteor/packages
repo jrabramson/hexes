@@ -16,3 +16,5 @@ momentjs:moment
 standard-minifiers
 react
 gnomathibus:meteor-phaser
+ovcharik:alertifyjs
+fongandrew:find-and-modify

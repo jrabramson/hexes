@@ -1,7 +1,13 @@
 hexHover = function(hex) { 
+  Session.set('option', {});
 	world.hovered = hex;
 	if (!world.focusedHex || world.focusedHex == hex) {
-		Session.set('hovered', {terrain: hex.terrain, owner: hex.ownerName, level: hex.level});
+		Session.set('hovered', {
+			terrain: hex.terrain, 
+			owner: hex.ownerName, 
+			structure: hex.structure,
+			production: hex.production
+		});
 	}
 }
 
@@ -10,14 +16,6 @@ hexSelect = function(hex) {
 		return;
 	}
 
-	hex.hover();
-	clearSelected();
+	clearOptions();
 	optionsFor(hex);
-}
-
-clearSelected = function() {
-	Session.set('option', {});
-	for (option in options) {
-		options[option].x = -9999;
-	}
 }

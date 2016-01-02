@@ -13,6 +13,7 @@ create = function() {
 	});
 
 	world.hovered = world.children[5000];
+	world.focusedHex = world.children[5000];
 
 	buildOptions();
 

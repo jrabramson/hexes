@@ -5,36 +5,7 @@
 
 <template name='sidebar'>
   <div id='sidebar'>
-    <div class='sidebar_section'>
-      <div class='main_box'></div>
-      <span class='main_title'>Hexes.io</span>      
-      {{#with timer}}
-        <span class='turn_count'>Turn {{turns}} / 500 </span>
-      {{/with}}
-    </div>
-    <div class='sidebar_section'>
-      {{> loginButtons}}      
-      {{#with user}}
-        <div class='sidebar_tooltip'> Hexes: {{owned.length}} </div>
-        <div class='sidebar_tooltip'> Population: {{population}} </div>
-        <div class='sidebar_tooltip'> Wealth: {{wealth}} </div>
-      {{/with}}
-    </div>    
-    <div class='sidebar_section'>
-      {{#with user}}
-        {{#with resources}}
-          <div class='sidebar_resource'> <span>{{wood}} wood</span> </div>
-          <div class='sidebar_resource'> <span>{{ore}} ore</span> </div>
-          <div class='sidebar_resource'> <span>{{glass}} glass</span> </div>
-          <div class='sidebar_resource'> <span>{{grain}} grain</span> </div>
-          <div class='sidebar_resource'> <span>{{fish}} fish</span> </div>
-          <div class='sidebar_resource'> <span>{{brick}} brick</span> </div>
-        {{/with}}
-      {{/with}}
-    </div>    
-    <div class='sidebar_section'>
-      {{> menu}}
-    </div>
+    {{> menu}}
   </div>
 </template>
 

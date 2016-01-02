@@ -4,10 +4,12 @@ Meteor.startup(function () {
 
   hexWorld = {};
 
-  if (Worlds.find({ live: true }).count() === 0) {
-    Worlds.insert({
+  function newGame() {
+
+    World.insert({
       name: "The World",
-      live: true
+      live: true,
+      leaderboard: {}
     });
 
     var terrainTypes = [
@@ -23,16 +25,20 @@ Meteor.startup(function () {
     for(i=0;i<100;i++) {
       for(j=0;j<100;j++) {
         rand = Math.floor(Math.random()*15);
-        Hexes.insert({
+        Hexes.findAndModify({
+          query: {x: j, y: i}, 
+          update: {$set: {
             order: count,
-            world: Worlds.findOne({ live: true })._id,
             x: j,
             y: i,
-            level: 0,
             terrain: terrainTypes[rand],
             walls: [0, 0, 0, 0, 0, 0],
             owner: null,
             ownerName: null,
+            production: {
+              level: 0,
+              type: null
+            },
             structure: {
               level: 0,
               type: [],
@@ -40,17 +46,79 @@ Meteor.startup(function () {
               variant: [],
               roof: false
             }
-          });
-        count++;
+          }
+        }, 
+        new: true, 
+        upsert: true 
+      });
+      
+      count++;
       }
     }
-    
-    Timer.insert({
-      world: Worlds.findOne({ live: true })._id,
-      remaining: turnTime,
-      turns: 0
+
+    Market.findAndModify({
+      query: {name: 'market'}, 
+      update: {
+        $set: {
+          name: 'market',
+          wood: {value: 10, trend: true},
+          ore: {value: 10, trend: true},
+          glass: {value: 10, trend: true},
+          grain: {value: 10, trend: true},
+          fish : {value: 10, trend: true},
+          brick: {value: 10, trend: true}
+        }
+      }, 
+      new: true, 
+      upsert: true 
     });
-	}
+    
+    Timer.findAndModify({
+      query: {name: 'timer'}, 
+      update: { 
+        $set: {
+          name: 'timer',
+          remaining: turnTime,
+          turns: 0
+        }
+      }, 
+      new: true, 
+      upsert: true 
+    });
+
+    Meteor.users.update({}, { 
+      $set: {
+        owned: [],
+        wealth: 3000,
+        population: 1000,
+        resources: {
+          wood : 100,
+          ore  : 100,
+          glass: 100,
+          grain: 100,
+          fish : 100,
+          brick: 100
+        }
+      }
+    }, {multi: true})
+
+    startGame();
+  }
+
+  if (World.find({live: true}).count() === 0) {
+    newGame();
+  } else {
+    startGame();
+  }
+
+  function startGame() {
+    turn();
+    turnInterval = Meteor.setInterval(function () {
+        turn();
+    }, turnTime);
+  }
+
+  Hexes._ensureIndex({ "x": 1, "y": 1 });
 
   function getRandomColour() {
       var letters = '0123456789ABCDEF'.split('');
@@ -61,14 +129,10 @@ Meteor.startup(function () {
       return color;
   }
 
-  // function current_world() {
-  //   return Worlds.findOne({ live: true })._id;
-  // }
-
   //................Collection Pubs
 
   Meteor.publish('hexes', function() {
-      return Hexes.find({ world: Worlds.findOne({ live: true })._id });
+      return Hexes.find();
       // return hexWorld.hexes;
   });
 
@@ -93,31 +157,50 @@ Meteor.startup(function () {
   });
 
   Meteor.publish("timer", function () {
-      return Timer.find({ world: Worlds.findOne({ live: true })._id });
+      return Timer.find();
       // return hexWorld.tick;
+  });
+
+  Meteor.publish("market", function () {
+      return Market.find();
   });
 
   //................Methods
 
   Meteor.methods({
     buyHex : function(hex) {
-      current_user = Meteor.users.findOne({_id: this.userId});
-      hex_tax = current_user.owned.length * 50;
+      var current_user = Meteor.users.findOne({_id: this.userId});
+      var hex_tax = current_user.owned.length * 50;
+
       if (hex.owner == null && current_user.wealth >= hex_tax) {
-        var walls = Hexes.findOne({_id: hex._id}).look()
-        console.log('purchasing: ' + hex.x + ', ' + hex.y)
+        var selected = Hexes.findOne({_id: hex._id});
+        var walls = selected.look();
+        console.log('purchasing: ' + hex.x + ', ' + hex.y);
+        
         Hexes.update(
           hex._id, 
           { $set: { owner: this.userId, ownerName: current_user.username, colour: current_user.colour, walls: walls } }
         );
+
+        selected.surrounding().forEach(function(n) {
+          n.updateWalls();
+        })
+
         Meteor.users.update( 
           { _id: Meteor.userId() }, 
           { $push: { owned: hex._id }, $inc: { wealth: -hex_tax } }
         );
-      }  
+        return 'Purchased ' + hex.x + ', ' + hex.y;
+      } else {
+        return 'Error when purchasing ' + hex.x + ', ' + hex.y;
+      }
     },
     buyTower : function(hex, struct) {
-      current_user = Meteor.users.findOne({_id: this.userId});
+      if (hex.production.level > 0) {
+        return false;
+      }
+
+      var current_user = Meteor.users.findOne({_id: this.userId});
       var towerCost = function(struct) {
         var cost_map = {
           "wood": { $inc: { wealth: -50, "resources.wood": -100, "resources.glass": -50 } },
@@ -172,18 +255,25 @@ Meteor.startup(function () {
           { _id: Meteor.userId() }, 
           towerCost(struct)
         );
+        return 'Bought ' + struct.material + ' tower on ' + hex.x + ', ' + hex.y;
       } else {
         console.log(current_user.username + ' failed to buy tower ' + struct.type + ' - ' + struct.material);
+        return 'Failed to buy ' + struct.material + ' tower on ' + hex.x + ', ' + hex.y;
       }
     },
-    upgradeHex : function(hex) {
-      current_user = Meteor.users.findOne({_id: this.userId});
-      hex_tax = hex.level * 50
+    buyProduction : function(hex) {
+      var current_user = Meteor.users.findOne({_id: this.userId});
+      var hex_tax = hex.level * 25;
+
+      if (hex.structure.level > 0) {
+        return false;
+      }
+
       if (hex.owner == current_user._id && current_user.wealth >= hex_tax && current_user.resources.wood >= 50) {
         console.log('upgrading: ' + hex.x + ', ' + hex.y)
         Hexes.update(
           hex._id, 
-          { $inc: { level: 1 } }
+          { $inc: { 'production.level': 1, 'production.type': '' } }
         );
         Meteor.users.update( 
           { _id: Meteor.userId() }, 
@@ -191,11 +281,43 @@ Meteor.startup(function () {
         );
       }  
     },
-    updateWall : function(hexes){
-      hexes.forEach(function (id) {
-        hex = Hexes.findOne({ _id: id });
-        Hexes.update(hex, { $set: {walls: hex.look()} });  
-      });
+    buyResource : function(transaction) {
+      var current_user = Meteor.users.findOne({_id: this.userId});
+      var market = Market.findOne();
+
+      result = market.buy(transaction.resource, transaction.amount, current_user.wealth);
+
+      var change = {wealth: -result};
+      change['resources.' + transaction.resource] = transaction.amount;
+
+      if (result) {
+        Meteor.users.update( 
+          { _id: Meteor.userId() }, 
+          { $inc: change }
+        );
+        return 'Bought ' + transaction.amount + ' ' + transaction.resource + ' for ' + result + 'w';
+      } else {
+        return 'Failed to buy ' + transaction.amount + ' ' + transaction.resource;
+      }
+    },
+    sellResource : function(transaction) {
+      var current_user = Meteor.users.findOne({_id: this.userId});
+      var market = Market.findOne();
+      
+      result = market.sell(transaction.resource, transaction.amount, current_user.resources[transaction.resource]);
+
+      var change = {wealth: result};
+      change['resources.' + transaction.resource] = -transaction.amount;
+
+      if (result) {
+        Meteor.users.update( 
+          { _id: Meteor.userId() }, 
+          { $inc: change }
+        );
+        return 'Sold ' + transaction.amount + ' ' + transaction.resource + ' for ' + result + 'w';
+      } else {
+        return 'Failed to sell ' + transaction.amount + ' ' + transaction.resource;
+      }
     }
   });
 
@@ -227,7 +349,7 @@ Meteor.startup(function () {
 
   Hexes.before.update(function (userId, doc, fieldNames, modifier, options) {
 
-  }, {fetchPrevious: false});
+  }, {fetchPrevious: true});
 
   Hexes.after.update(function (userId, doc, fieldNames, modifier, options) {
     if (fieldNames.indexOf('owner') >= 0) {
@@ -246,43 +368,23 @@ Meteor.startup(function () {
 
   //................Game Timer
 
-  var startTime, countAmt, interval, timer;
-  timer = Timer.findOne({ world: Worlds.findOne({ live: true })._id })._id;
-
-  Meteor.setInterval(function () {
-      turn();
-  }, turnTime);
+  var startTime, countAmt, interval;
 
   function turn() {
-    startTimer(turnTime);
+    var timer = Timer.findOne()._id;
     Timer.update(timer, { $inc: { turns: 1 }});
     // hexWorld.turn = Timer.findOne(timer).turns;
     harvest();
     Meteor._debug("Turn " + Timer.findOne(timer).turns);
-  }
-
-  function now() {
-    return ((new Date()).getTime()+2);
-  }
-
-  function tick() {
-    var elapsed = now() - startTime;
-    hexWorld.tick = countAmt - elapsed;
-    // Meteor._debug("Tick");
-    if (hexWorld.tick > 0) {
-      // Timer.update(timer, { $set: { remaining: cnt }});
-    } else {
-      // Timer.update(timer, { $set: { remaining: 0 }});
-      clearInterval(interval);
+    if (Timer.findOne(timer).turns >= 500) {
+      console.log('Game Over!');
+      Meteor.clearInterval(turnInterval);
+      gameOver();
     }
   }
 
-  function startTimer(millisecs) {
-    clearInterval(interval);
-    // Timer.update(timer, { $set: { remaining: millisecs }});
-    countAmt = millisecs;
-    startTime = now();
-    interval = Meteor.setInterval(tick, 1000);  
+  function now() {
+    return (new Date()).getTime() + 2;
   }
 
   function harvest() {
@@ -306,11 +408,18 @@ Meteor.startup(function () {
           break;
         case 'sand':
           Meteor.users.update(hex.owner, { $inc: { "resources.glass": 1 } });
-          break;  
+          break;
+        default:
+          break;
       }
     });
   }
-  
-  turn();
+
+  //................Game Over
+
+  function gameOver() {
+    World.update({live: true}, {$set: {live: false}}, {multi: true});
+    newGame();
+  }
 
 });

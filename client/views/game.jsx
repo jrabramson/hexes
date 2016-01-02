@@ -49,7 +49,7 @@ Template.menu.rendered = function() {
 Hexes.find().observeChanges({
     changed: function(d) {
       userDeps.changed();
-      updateHex(d);
+      Actions.updateHex(d);
     }
 });
 

@@ -1,5 +1,5 @@
 newWorld = function() {
-  Worlds.insert({
+  World.insert({
   	name: "The World",
     live: true
   });
@@ -19,7 +19,7 @@ newWorld = function() {
   		rand = Math.floor(Math.random()*15);
     	Hexes.insert({
           order: count,
-        	world: Worlds.findOne({ live: true })._id,
+        	world: World.findOne({ live: true })._id,
         	x: j,
         	y: i,
           level: 0,
@@ -40,7 +40,7 @@ newWorld = function() {
   }
   
   Timer.insert({
-    world: Worlds.findOne({ live: true })._id,
+    world: World.findOne({ live: true })._id,
     remaining: turnTime,
     turns: 0
   });

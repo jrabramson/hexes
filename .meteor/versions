@@ -30,6 +30,7 @@ ecmascript-runtime@0.2.6
 ejson@1.0.7
 email@1.0.8
 fastclick@1.0.7
+fongandrew:find-and-modify@0.2.1
 fourseven:scss@3.4.1
 geojson-utils@1.0.4
 gnomathibus:meteor-phaser@2.4.4
@@ -68,6 +69,7 @@ npm-bcrypt@0.7.8_2
 npm-mongo@1.4.39_1
 observe-sequence@1.0.7
 ordered-dict@1.0.4
+ovcharik:alertifyjs@1.4.1
 promise@0.5.1
 random@1.0.5
 rate-limit@1.0.0
