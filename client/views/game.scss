@@ -90,6 +90,18 @@ svg {
 					}
 				}
 			}
+			.option {
+				.option-resource {
+					color: #8DC435;
+				}
+				.option-inc {
+					color: #CA9A6C;
+					font-weight: 700;
+				}
+				.option-highlight {
+					color: #8DC435;
+				}
+			}
 			.hovered, .option {
 				vertical-align: top;
 				display: inline-block;

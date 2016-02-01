@@ -4,7 +4,7 @@ buildDecoration = function(sprite, min, max, variants, scale, elev, moves) {
 		var x = moves ? (20 + game.rnd.realInRange(-15, 15)) : 6;
 		var y = (moves ? (hexHeight / 2) + (game.rnd.realInRange(0, 15)) : -12) - elev;
 		var deco = game.add.image(
-				x, y, 'spritesheet',
+				x, y, 'hexsheet',
 				sprite + (variants > 1 ? game.rnd.integerInRange(1, variants) : '')
 			);
 		deco.scale.setTo(scale);
@@ -22,7 +22,7 @@ decorate = function(hex) {
 	var wallMap = ['e', 'se', 'sw', 'w', 'nw', 'ne'];
 	for (var wall in hex.walls) {
 		if (hex.walls[wallCount] === 1) {
-			var wall = game.add.image(33, 45, 'spritesheet', 'wall-' + wallMap[wallCount]);
+			var wall = game.add.image(33, 45, 'hexsheet', 'wall-' + wallMap[wallCount]);
 			wall.anchor.setTo(0.5);
 			wall.tint = hex.colour;
 			hex.addChild(wall);

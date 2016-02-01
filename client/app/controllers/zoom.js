@@ -8,9 +8,9 @@ mouseWheel = function(event) {
 	else if (event.wheelDelta > 0 && worldScale < 1) {
 		worldScale = 1;
 	}
-	
+
 	var centerHex = world.hovered;
-	
+
 	world.pivot.x = Math.round(centerHex.x);
 	world.pivot.y = Math.round(centerHex.y);
 	world.x = Math.round(centerHex.x);

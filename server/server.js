@@ -13,28 +13,40 @@ Meteor.startup(function () {
     });
 
     var terrainTypes = [
-          'grass', 'grass', 'grass', 'grass', 'grass', 
-          'forest','forest','forest', 
-          'ground','ground','ground', 
-          'stone','stone', 
-          'sand', 
+          'grass', 'grass', 'grass', 'grass', 'grass',
+          'forest','forest','forest',
+          'ground','ground','ground',
+          'stone','stone',
+          'sand',
           'water'
         ];
+
+    var resourceMap = {
+      'grass': 'grain',
+      'forest': 'wood',
+      'ground': 'brick',
+      'stone': 'ore',
+      'sand': 'glass',
+      'water': 'fish'
+    }
 
     var count = 0;
     for(i=0;i<100;i++) {
       for(j=0;j<100;j++) {
-        rand = Math.floor(Math.random()*15);
+        var rand = Math.floor(Math.random()*15);
+        var terrain = terrainTypes[rand];
         Hexes.findAndModify({
-          query: {x: j, y: i}, 
+          query: {x: j, y: i},
           update: {$set: {
             order: count,
             x: j,
             y: i,
-            terrain: terrainTypes[rand],
+            terrain: terrain,
+            resource: resourceMap[terrain],
             walls: [0, 0, 0, 0, 0, 0],
             owner: null,
             ownerName: null,
+            state: null,
             production: {
               level: 0,
               type: null
@@ -45,19 +57,22 @@ Meteor.startup(function () {
               material: [],
               variant: [],
               roof: false
+            },
+            village: {
+              level: 0
             }
           }
-        }, 
-        new: true, 
-        upsert: true 
+        },
+        new: true,
+        upsert: true
       });
-      
+
       count++;
       }
     }
 
     Market.findAndModify({
-      query: {name: 'market'}, 
+      query: {name: 'market'},
       update: {
         $set: {
           name: 'market',
@@ -68,25 +83,25 @@ Meteor.startup(function () {
           fish : {value: 10, trend: true},
           brick: {value: 10, trend: true}
         }
-      }, 
-      new: true, 
-      upsert: true 
+      },
+      new: true,
+      upsert: true
     });
-    
+
     Timer.findAndModify({
-      query: {name: 'timer'}, 
-      update: { 
+      query: {name: 'timer'},
+      update: {
         $set: {
           name: 'timer',
           remaining: turnTime,
           turns: 0
         }
-      }, 
-      new: true, 
-      upsert: true 
+      },
+      new: true,
+      upsert: true
     });
 
-    Meteor.users.update({}, { 
+    Meteor.users.update({}, {
       $set: {
         owned: [],
         wealth: 3000,
@@ -118,7 +133,9 @@ Meteor.startup(function () {
     }, turnTime);
   }
 
-  Hexes._ensureIndex({ "x": 1, "y": 1 });
+  Hexes._ensureIndex({ "x": 1 });
+  Hexes._ensureIndex({ "y": 1 });
+  Hexes._ensureIndex({ "owner": 1 });
 
   function getRandomColour() {
       var letters = '0123456789ABCDEF'.split('');
@@ -138,17 +155,17 @@ Meteor.startup(function () {
 
   Meteor.publish("allUserData", function () {
     return Meteor.users.find({}, {
-      fields: { 
-        'username': 1, 
-        'owned'   : 1, 
-        'colour'  : 1 
+      fields: {
+        'username': 1,
+        'owned'   : 1,
+        'colour'  : 1
       }
     });
   });
 
   Meteor.publish("resources", function () {
     return Meteor.users.find(Meteor.userId, {
-      fields: { 
+      fields: {
         'population': 1,
         'wealth'    : 1,
         'resources' : 1
@@ -173,21 +190,24 @@ Meteor.startup(function () {
       var hex_tax = current_user.owned.length * 50;
 
       if (hex.owner == null && current_user.wealth >= hex_tax) {
+        this.unblock();
         var selected = Hexes.findOne({_id: hex._id});
         var walls = selected.look();
-        console.log('purchasing: ' + hex.x + ', ' + hex.y);
-        
+        Meteor._debug('purchasing: ' + hex.x + ', ' + hex.y);
+
         Hexes.update(
-          hex._id, 
+          {_id: hex._id},
           { $set: { owner: this.userId, ownerName: current_user.username, colour: current_user.colour, walls: walls } }
         );
 
+        Meteor._debug('updating walls');
         selected.surrounding().forEach(function(n) {
           n.updateWalls();
         })
 
-        Meteor.users.update( 
-          { _id: Meteor.userId() }, 
+        Meteor._debug('updating user');
+        Meteor.users.update(
+          { _id: Meteor.userId() },
           { $push: { owned: hex._id }, $inc: { wealth: -hex_tax } }
         );
         return 'Purchased ' + hex.x + ', ' + hex.y;
@@ -196,8 +216,8 @@ Meteor.startup(function () {
       }
     },
     buyTower : function(hex, struct) {
-      if (hex.production.level > 0) {
-        return false;
+      if (hex.state && hex.state != 'tower') {
+        return 'Failed to buy tower, hex is ' + hex.state;
       }
 
       var current_user = Meteor.users.findOne({_id: this.userId});
@@ -213,26 +233,25 @@ Meteor.startup(function () {
       var canAfford = function(struct, hex, current_user) {
         var tower_map = {
           "wood": function() {
-            console.log(current_user.resources.wood);
-            return (current_user.resources.wood >= 100 
+            return (current_user.resources.wood >= 100
               && current_user.resources.glass >= 50
               && current_user.wealth >= 50);
           },
           "sandstone": function() {
-            return (hex.terrain == "sand" 
-              && current_user.resources.brick >= 50 
+            return (hex.terrain == "sand"
+              && current_user.resources.brick >= 50
               && current_user.resources.glass >= 50
               && current_user.wealth >= 50);
           },
           "stone": function() {
-            return (current_user.resources.brick >= 100 
+            return (current_user.resources.brick >= 100
               && current_user.resources.glass >= 50
               && current_user.wealth >= 50);
           },
           "obsidian": function() {
-            return (current_user.resources.brick >= 100 
-              && current_user.resources.ore >= 100 
-              && current_user.resources.glass >= 50 
+            return (current_user.resources.brick >= 100
+              && current_user.resources.ore >= 100
+              && current_user.resources.glass >= 50
               && current_user.wealth >= 50);
           }
         };
@@ -241,18 +260,19 @@ Meteor.startup(function () {
       if (hex.owner == current_user._id && hex.structure.level < 3 && canAfford(struct, hex, current_user)) {
         console.log(current_user.username + ' is building: ' + struct.type + "-" + struct.material + "-" + struct.variant);
         Hexes.update(
-          hex._id, 
-          { 
+          {_id: hex._id},
+          {
             $inc: { 'structure.level': 1 },
-            $push: { 
-              'structure.type': struct.type, 
-              'structure.material': struct.material, 
-              'structure.variant': struct.variant 
-            } 
+            $set: { 'state': 'tower' },
+            $push: {
+              'structure.type': struct.type,
+              'structure.material': struct.material,
+              'structure.variant': struct.variant
+            }
           }
         );
-        Meteor.users.update( 
-          { _id: Meteor.userId() }, 
+        Meteor.users.update(
+          { _id: Meteor.userId() },
           towerCost(struct)
         );
         return 'Bought ' + struct.material + ' tower on ' + hex.x + ', ' + hex.y;
@@ -263,23 +283,33 @@ Meteor.startup(function () {
     },
     buyProduction : function(hex) {
       var current_user = Meteor.users.findOne({_id: this.userId});
-      var hex_tax = hex.level * 25;
+      var hex_tax = hex.production.level * 50;
 
-      if (hex.structure.level > 0) {
-        return false;
+      if (hex.state && hex.state != 'production') {
+        return 'Failed to buy production, hex is ' + hex.state;
       }
 
       if (hex.owner == current_user._id && current_user.wealth >= hex_tax && current_user.resources.wood >= 50) {
         console.log('upgrading: ' + hex.x + ', ' + hex.y)
         Hexes.update(
-          hex._id, 
-          { $inc: { 'production.level': 1, 'production.type': '' } }
+          {_id: hex._id},
+          { $inc: { 'production.level': 1, 'production.type': '' }, $set: { 'state': 'production' } }
         );
-        Meteor.users.update( 
-          { _id: Meteor.userId() }, 
+        Meteor.users.update(
+          { _id: Meteor.userId() },
           { $inc: { wealth: -hex_tax } }
         );
-      }  
+      }
+    },
+    buyVillage: function(hex) {
+      var current_user = Meteor.users.findOne({_id: this.userId});
+      var hex_tax = hex.level * 25;
+
+      if (hex.state && hex.state != 'village') {
+        return 'Failed to buy village, hex is ' + hex.state;
+      }
+
+
     },
     buyResource : function(transaction) {
       var current_user = Meteor.users.findOne({_id: this.userId});
@@ -291,8 +321,8 @@ Meteor.startup(function () {
       change['resources.' + transaction.resource] = transaction.amount;
 
       if (result) {
-        Meteor.users.update( 
-          { _id: Meteor.userId() }, 
+        Meteor.users.update(
+          { _id: Meteor.userId() },
           { $inc: change }
         );
         return 'Bought ' + transaction.amount + ' ' + transaction.resource + ' for ' + result + 'w';
@@ -303,15 +333,15 @@ Meteor.startup(function () {
     sellResource : function(transaction) {
       var current_user = Meteor.users.findOne({_id: this.userId});
       var market = Market.findOne();
-      
+
       result = market.sell(transaction.resource, transaction.amount, current_user.resources[transaction.resource]);
 
       var change = {wealth: result};
       change['resources.' + transaction.resource] = -transaction.amount;
 
       if (result) {
-        Meteor.users.update( 
-          { _id: Meteor.userId() }, 
+        Meteor.users.update(
+          { _id: Meteor.userId() },
           { $inc: change }
         );
         return 'Sold ' + transaction.amount + ' ' + transaction.resource + ' for ' + result + 'w';
@@ -339,7 +369,7 @@ Meteor.startup(function () {
       return user;
   });
 
-  Meteor.users.deny({  
+  Meteor.users.deny({
     update: function() {
       return true;
     }
@@ -354,7 +384,7 @@ Meteor.startup(function () {
   Hexes.after.update(function (userId, doc, fieldNames, modifier, options) {
     if (fieldNames.indexOf('owner') >= 0) {
       hex = Hexes.findOne({_id: doc._id});
-      Hexes.update(hex, { $set: {walls: hex.look()} });
+      Hexes.update({_id: hex._id}, { $set: {walls: hex.look()} });
       var neighbors = [];
       for (i=0;i<6;i++) {
         if (!_.isUndefined(hex.look(i)) && hex.look(i).owner === hex.owner) {
@@ -372,7 +402,7 @@ Meteor.startup(function () {
 
   function turn() {
     var timer = Timer.findOne()._id;
-    Timer.update(timer, { $inc: { turns: 1 }});
+    Timer.update({_id: timer}, { $inc: { turns: 1 }});
     // hexWorld.turn = Timer.findOne(timer).turns;
     harvest();
     Meteor._debug("Turn " + Timer.findOne(timer).turns);
@@ -390,28 +420,11 @@ Meteor.startup(function () {
   function harvest() {
     claimed = Hexes.find({ owner: { $type: 2 } });
     claimed.forEach(function(hex) {
-      switch (hex.terrain) {
-        case 'grass':
-          Meteor.users.update(hex.owner, { $inc: { "resources.grain": 1 } });
-          break;
-        case 'forest':
-          Meteor.users.update(hex.owner, { $inc: { "resources.wood": 1 } });
-          break;
-        case 'ground':
-          Meteor.users.update(hex.owner, { $inc: { "resources.brick": 1 } });
-          break;
-        case 'stone':
-          Meteor.users.update(hex.owner, { $inc: { "resources.ore": 1 } });
-          break;
-        case 'water':
-          Meteor.users.update(hex.owner, { $inc: { "resources.fish": 1 } });
-          break;
-        case 'sand':
-          Meteor.users.update(hex.owner, { $inc: { "resources.glass": 1 } });
-          break;
-        default:
-          break;
-      }
+      var inc = hex.getIncrement();
+      var res = {}
+      res['resources.' + hex.resource] = inc;
+
+      Meteor.users.update({_id: hex.owner._id}, { $inc: res });
     });
   }
 

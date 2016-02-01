@@ -27,15 +27,15 @@ Meteor.startup(function() {
 
 Template.game.rendered = function () {
   game = new Phaser.Game(
-    window.innerWidth, 
-    window.innerHeight, 
-    Phaser.CANVAS, 
-    'camera', 
+    window.innerWidth,
+    window.innerHeight,
+    Phaser.CANVAS,
+    'camera',
     {
-      preload: preload, 
-      create: create, 
-      update: update, 
-      render: render 
+      preload: preload,
+      create: create,
+      update: update,
+      render: render
     }
   );
 }

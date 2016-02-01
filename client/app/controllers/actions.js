@@ -5,12 +5,12 @@ Actions = {
 		})[0];
 		hexData = Hexes.findOne({_id: updated_id});
 		options['buy']['tooltip']['cost']['wealth'] = (50 * (Meteor.user() ? Meteor.user().owned.length : 1)) + 50;
-		
+
 		hex.owner = hexData.owner;
 		hex.ownerName = hexData.ownerName;
 		hex.structure = hexData.structure;
 		hex.walls = hexData.walls;
-		console.log(hex.walls);
+		hex.state = hexData.state;
 		hex.colour = hexData.colour;
 		decorate(hex);
 
@@ -19,23 +19,27 @@ Actions = {
 
 	},
 	buyHex: function() {
-	    Meteor.call('buyHex', Hexes.findOne({_id: world.focusedHex._id}), (err, res) => {
-			alertify.message(res);
-		}); 
+    Meteor.call('buyHex', Hexes.findOne({_id: world.focusedHex._id}), (err, res) => {
+				alertify.message(res);
+		});
+		clearOptions(world.focusedHex);
 	},
 	buyProduction: function() {
-	    Meteor.call('buyProduction', Hexes.findOne({_id: world.focusedHex._id}), (err, res) => {
+    Meteor.call('buyProduction', Hexes.findOne({_id: world.focusedHex._id}), (err, res) => {
 			alertify.message(res);
-		}); 
+		});
+		clearOptions(world.focusedHex);
 	},
 	buyTower: function(tower) {
 		var struct = {
-			type: tower.type, 
-			material: tower.material, 
-			variant: game.rnd.integerInRange(1,2)};
-	    Meteor.apply('buyTower', [Hexes.findOne({_id: world.focusedHex._id}), struct], (err, res) => {
+			type: tower.type,
+			material: tower.material,
+			variant: game.rnd.integerInRange(1,2)
+		};
+    Meteor.apply('buyTower', [Hexes.findOne({_id: world.focusedHex._id}), struct], (err, res) => {
 			alertify.message(res);
-		}); 
+		});
+		clearOptions(world.focusedHex);
 	},
 	buyResource: function(res, amount) {
 		Meteor.call('buyResource', {resource: res, amount: 10}, (err, res) => {

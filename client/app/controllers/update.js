@@ -1,4 +1,4 @@
-update = function() {	
+update = function() {
 	game.world.bringToTop(ui);
 
 	if (cursors.up.isDown) // || wasd.up.isDown
