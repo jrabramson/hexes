@@ -37,18 +37,29 @@ decorate = function(hex) {
 
 construct = function(hex) {
 	var buildings = [];
-	if (hex.structure.level > 0) {
-		for (var i=0;i<hex.structure.level;i++) {
-			var step = buildDecoration(
-				'level'+Math.min(2,i+1)+'-'+hex.structure.material[i]+'-'+hex.structure.variant[i], 
-				1, 1, 0, 0.8, (18 * i), false
-			);
-			buildings = buildings.concat(step);
-		}
-		if (hex.structure.roof) {
-			buildings = buildings.concat(buildDecoration('roof', 1, 1, 4, 0.8, (16*(hex.structure.level-1)) + 20, false));
-		} else {
-			buildings = buildings.concat(buildDecoration('ring', 1, 1, 4, 0.8, (16*(hex.structure.level-1)) + 10, false));
+
+	if (hex.state.level > 0) {
+		switch (hex.state.type) {
+			case 'tower':
+				for (var i=0;i<hex.state.level;i++) {
+					var step = buildDecoration(
+						'level'+Math.min(2,i+1)+'-'+hex.state.structure.material[i]+'-'+hex.state.structure.variant[i],
+						1, 1, 0, 0.8, (18 * i), false
+					);
+					buildings = buildings.concat(step);
+				}
+				if (hex.structure.roof) {
+					buildings = buildings.concat(buildDecoration('roof', 1, 1, 4, 0.8, (16*(hex.state.structure.level-1)) + 20, false));
+				} else {
+					buildings = buildings.concat(buildDecoration('ring', 1, 1, 4, 0.8, (16*(hex.state.structure.level-1)) + 10, false));
+				}
+				break;
+			case 'production':
+				break;
+			case 'village':
+				break;
+			default:
+				break;
 		}
 	}
 

@@ -8,7 +8,6 @@ Actions = {
 
 		hex.owner = hexData.owner;
 		hex.ownerName = hexData.ownerName;
-		hex.structure = hexData.structure;
 		hex.walls = hexData.walls;
 		hex.state = hexData.state;
 		hex.colour = hexData.colour;
@@ -26,6 +25,12 @@ Actions = {
 	},
 	buyProduction: function() {
     Meteor.call('buyProduction', Hexes.findOne({_id: world.focusedHex._id}), (err, res) => {
+			alertify.message(res);
+		});
+		clearOptions(world.focusedHex);
+	},
+	buyVillage: function() {
+    Meteor.call('buyVillage', Hexes.findOne({_id: world.focusedHex._id}), (err, res) => {
 			alertify.message(res);
 		});
 		clearOptions(world.focusedHex);

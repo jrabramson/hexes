@@ -31,6 +31,7 @@ Meteor.startup(function () {
     }
 
     var count = 0;
+    var variant = 1;
     for(i=0;i<100;i++) {
       for(j=0;j<100;j++) {
         var rand = Math.floor(Math.random()*15);
@@ -42,24 +43,15 @@ Meteor.startup(function () {
             x: j,
             y: i,
             terrain: terrain,
+            variant: variant,
             resource: resourceMap[terrain],
             walls: [0, 0, 0, 0, 0, 0],
             owner: null,
             ownerName: null,
-            state: null,
-            production: {
+            state: {
+              type: null,
               level: 0,
-              type: null
-            },
-            structure: {
-              level: 0,
-              type: [],
-              material: [],
-              variant: [],
-              roof: false
-            },
-            village: {
-              level: 0
+              structure: {}
             }
           }
         },
@@ -68,6 +60,7 @@ Meteor.startup(function () {
       });
 
       count++;
+      variant == 3 ? variant = 1 : variant++;
       }
     }
 
@@ -216,7 +209,7 @@ Meteor.startup(function () {
       }
     },
     buyTower : function(hex, struct) {
-      if (hex.state && hex.state != 'tower') {
+      if (hex.state.type && hex.state.type != 'tower') {
         return 'Failed to buy tower, hex is ' + hex.state;
       }
 
@@ -257,17 +250,20 @@ Meteor.startup(function () {
         };
         return tower_map[struct.material]();
       }
-      if (hex.owner == current_user._id && hex.structure.level < 3 && canAfford(struct, hex, current_user)) {
+      if (hex.owner == current_user._id && hex.state.level < 3 && canAfford(struct, hex, current_user)) {
         console.log(current_user.username + ' is building: ' + struct.type + "-" + struct.material + "-" + struct.variant);
         Hexes.update(
           {_id: hex._id},
           {
-            $inc: { 'structure.level': 1 },
-            $set: { 'state': 'tower' },
+            $inc: { 'state.level': 1 },
+            $set: {
+              'state.type': 'tower',
+              'state.structure.type': []
+            },
             $push: {
-              'structure.type': struct.type,
-              'structure.material': struct.material,
-              'structure.variant': struct.variant
+              'state.structure.type': struct.type,
+              'state.structure.material': struct.material,
+              'state.structure.variant': struct.variant
             }
           }
         );
@@ -282,18 +278,26 @@ Meteor.startup(function () {
       }
     },
     buyProduction : function(hex) {
-      var current_user = Meteor.users.findOne({_id: this.userId});
-      var hex_tax = hex.production.level * 50;
-
-      if (hex.state && hex.state != 'production') {
+      if (hex.state.type && hex.state.type != 'production') {
         return 'Failed to buy production, hex is ' + hex.state;
       }
 
-      if (hex.owner == current_user._id && current_user.wealth >= hex_tax && current_user.resources.wood >= 50) {
+      var current_user = Meteor.users.findOne({_id: this.userId});
+      var hex_tax = hex.state.level * 50;
+
+      if (hex.owner == current_user._id && hex.state.level < 3 && current_user.wealth >= hex_tax && current_user.resources.wood >= 50) {
         console.log('upgrading: ' + hex.x + ', ' + hex.y)
         Hexes.update(
           {_id: hex._id},
-          { $inc: { 'production.level': 1, 'production.type': '' }, $set: { 'state': 'production' } }
+          {
+            $inc: {
+              'state.level': 1
+            },
+            $set: {
+              'state.type': 'production',
+              'state.structure.type': ''
+            }
+          }
         );
         Meteor.users.update(
           { _id: Meteor.userId() },

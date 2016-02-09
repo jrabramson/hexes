@@ -1,8 +1,8 @@
 Hex = function(hex, i) {
 	var hexagonX = hex.x * hexRectangleWidth + ((Math.floor(i/100) % 2) * hexRadius);
 	var hexagonY = hex.y * (sideLength + hexHeight);
-	var hexagon = world.create(hexagonX,hexagonY,'hexsheet',hex.terrain);
-	var sliced_hash = hex.slice('_id', 'owner', 'ownerName', 'terrain', 'resource', 'state', 'level', 'structure', 'production', 'walls', 'colour');
+	var hexagon = world.create(hexagonX, hexagonY, 'hexsheet', hex.terrain + hex.variant);
+	var sliced_hash = hex.slice('_id', 'owner', 'ownerName', 'terrain', 'resource', 'state', 'structure', 'production', 'walls', 'colour');
 
 	_.extend(hexagon, sliced_hash);
 	hexagon.baseY = hexagonY;

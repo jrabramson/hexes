@@ -15,7 +15,7 @@ optionsFor = function(hex, reset) {
 	}
 	if (hex.owner) {
 		if (hex.owner == Meteor.user()._id) {
-			switch (hex.state) {
+			switch (hex.state.type) {
 				case 'tower':
 					getOptions(['woodTower', 'sandTower', 'stoneTower', 'obsidianTower', 'demolish'], hex);
 					break;
@@ -26,7 +26,7 @@ optionsFor = function(hex, reset) {
 					getOptions(['village', 'demolish'], hex);
 					break;
 				default:
-					getOptions(['choiceTower', 'choiceProduction'], hex);
+					getOptions(['choiceTower', 'choiceProduction', 'choiceVillage'], hex);
 					break;
 			}
 		}
@@ -58,20 +58,20 @@ buildOptions = function() {
 			title: 'Upgrade Production',
 			cost: {
 				wealth: 100,
-				wood: 50 * world.focusedHex.production.level,
-				brick: 50 * world.focusedHex.production.level
+				wood: 50 * world.focusedHex.state.level,
+				brick: 50 * world.focusedHex.state.level
 			},
 			body: '[+1] {resource} per turn <br /> [50] |population| employed'
 		}
 	});
 
-	addOption('village', 'flag', Actions.buyProduction, {
+	addOption('village', 'flag', Actions.buyVillage, {
 		tooltip: {
 			title: 'Upgrade Housing',
 			cost: {
 				wealth: 100,
-				wood: 50 * world.focusedHex.production.level,
-				brick: 50 * world.focusedHex.production.level
+				wood: 50 * world.focusedHex.state.level,
+				brick: 50 * world.focusedHex.state.level
 			},
 			body: '[+150] |population| cap <br /> [-1] |food| per turn'
 		}
@@ -98,7 +98,7 @@ buildOptions = function() {
 		tooltip: {
 			title: 'Village',
 			cost: {},
-			body: 'Villages increase your population at the cost of food.'
+			body: 'Villages increases your population at the cost of food.'
 		}
 	});
 

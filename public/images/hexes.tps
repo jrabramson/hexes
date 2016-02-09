@@ -4,7 +4,7 @@
         <key>fileFormatVersion</key>
         <int>3</int>
         <key>texturePackerVersion</key>
-        <string>4.0.1</string>
+        <string>4.0.2</string>
         <key>fileName</key>
         <string>/Users/Jesse/Code/hexes/public/images/hexes.tps</string>
         <key>autoSDSettings</key>
@@ -194,20 +194,15 @@
         <array>
             <filename>tileset/Tiles/cactus1.png</filename>
             <filename>tileset/Tiles/cactus2.png</filename>
-            <filename>tileset/Tiles/forest.png</filename>
-            <filename>tileset/Tiles/grass.png</filename>
-            <filename>tileset/Tiles/ground.png</filename>
             <filename>tileset/Tiles/icon_forest.png</filename>
             <filename>tileset/Tiles/icon_grass.png</filename>
             <filename>tileset/Tiles/icon_ground.png</filename>
             <filename>tileset/Tiles/icon_sand.png</filename>
             <filename>tileset/Tiles/icon_stone.png</filename>
             <filename>tileset/Tiles/icon_water.png</filename>
-            <filename>tileset/Tiles/stone.png</filename>
             <filename>tileset/Tiles/tree1.png</filename>
             <filename>tileset/Tiles/tree2.png</filename>
             <filename>tileset/Tiles/tree3.png</filename>
-            <filename>tileset/Tiles/water.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/door.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/gate.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/ring1.png</filename>
@@ -235,7 +230,6 @@
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/level2-wood-1.png</filename>
             <filename>../../../../Downloads/hexagonTiles Buildings/Tiles/level2-wood-2.png</filename>
             <filename>ui-circle.png</filename>
-            <filename>tileset/Tiles/sand.png</filename>
             <filename>flag.png</filename>
             <filename>tileset/sketch/wall-e.png</filename>
             <filename>tileset/sketch/wall-ne.png</filename>
@@ -243,6 +237,24 @@
             <filename>tileset/sketch/wall-se.png</filename>
             <filename>tileset/sketch/wall-sw.png</filename>
             <filename>tileset/sketch/wall-w.png</filename>
+            <filename>tileset/forest1.png</filename>
+            <filename>tileset/forest2.png</filename>
+            <filename>tileset/forest3.png</filename>
+            <filename>tileset/grass1.png</filename>
+            <filename>tileset/grass2.png</filename>
+            <filename>tileset/grass3.png</filename>
+            <filename>tileset/ground1.png</filename>
+            <filename>tileset/ground2.png</filename>
+            <filename>tileset/ground3.png</filename>
+            <filename>tileset/sand1.png</filename>
+            <filename>tileset/sand2.png</filename>
+            <filename>tileset/sand3.png</filename>
+            <filename>tileset/stone1.png</filename>
+            <filename>tileset/stone2.png</filename>
+            <filename>tileset/stone3.png</filename>
+            <filename>tileset/water1.png</filename>
+            <filename>tileset/water2.png</filename>
+            <filename>tileset/water3.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

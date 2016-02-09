@@ -130,13 +130,12 @@ Hovered = React.createClass({
 		}
 	},
 	building(hex) {
-		var tower = hex.structure || {};
-		var prod = hex.production || {};
+		var struct = hex.state || {};
 
-		if (tower.level > prod.level) {
-			return tower.material.map((x, i) => {
+		if (struct.type == 'tower') {
+			return struct.structure.material.map((x, i) => {
 				return <span key={i}>
-						{tower.material[i][0].toUpperCase() + tower.material[i].slice(1) + ' Tower'}
+						{struct.structure.material[i][0].toUpperCase() + struct.structure.material[i].slice(1) + ' Tower'}
 					</span>;
 			});
 		}
@@ -182,7 +181,7 @@ Option = React.createClass({
 	},
 	parse_increment: function(inc, hex) {
 		var params = inc.split('');
-		var level = hex[hex.state] && hex[hex.state].level || 1;
+		var level = hex.state.level;
 		var amount = params[1] * level;
 
 		return params[0] + amount;
