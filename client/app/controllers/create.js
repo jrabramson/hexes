@@ -1,7 +1,57 @@
 create = function() {
 	game.canvas.oncontextmenu = function (e) { e.preventDefault(); }
-	game.world.setBounds(-100, -100, 7000, 6000);
-	game.camera.setPosition(3000, 3000);
+
+	game.tooltips_enabled = false;
+	game.show_resource_tooltips = function() {
+		if (game.tooltips_enabled) {
+			return;
+		}
+		var territory = world.filter((hex) => { return hex.ownerName }).list;
+		territory.forEach(function(hex) {
+			var tooltip = game.add.text(13, 16, "+" + hex.getIncrement());
+			// tooltip.anchor.set(0.5);
+	    tooltip.align = 'center';
+
+	    tooltip.font = 'Arial Black';
+	    tooltip.fontSize = 30;
+	    tooltip.fontWeight = 'bold';
+
+	    var fill = "#" + Meteor.users.findOne({ username: hex.ownerName }).colour.toString(16).toUpperCase().split('.')[0];
+	    tooltip.fill = fill;
+
+	    tooltip.setShadow(2, 2, 'rgba(0, 0, 0, 0.5)', 0);
+	    hex.addChild(tooltip);
+	    tooltips.push(tooltip);
+		});
+		game.tooltips_enabled = true;
+	}
+
+	game.hide_resource_tooltips = function() {
+		if (game.tooltips_enabled) {
+			tooltips.forEach(function(t) {
+				t.destroy();
+			});
+			tooltips = [];
+			game.tooltips_enabled = false;
+		}
+	}
+
+	$('#camera canvas').on('blur', function(e) {
+		game.input.enabled = false;
+	}).on('focus', function(e) {
+		game.input.enabled = true;
+	});
+
+	$('#camera canvas').on('mouseout', function(e) {
+		Session.set('hovered', {});
+		Session.set('option', {});
+	});
+
+	game.world.setBounds(-1000, -1000, 2000, 2000);
+	game.camera.x = (game.width * -0.5);
+	game.camera.y = (game.height * -0.5);
+	game.world.pivot.x = 950;
+	game.world.pivot.y = 950;
 
 	world = game.add.group();
 	world.z = 0;
@@ -12,20 +62,12 @@ create = function() {
 		new Hex(hex, i);
 	});
 
-	world.hovered = world.children[5000];
-	world.focusedHex = world.children[5000];
+	world.hovered = world.children[512];
+	world.focusedHex = world.children[512];
 
 	buildOptions();
 
 	cursors = game.input.keyboard.createCursorKeys();
-	game.input.mouse.mouseWheelCallback = mouseWheel;
 
 	game.time.advancedTiming = true;
-
-	// wasd = {
-	//    up: game.input.keyboard.addKey(Phaser.Keyboard.W),
-	//    down: game.input.keyboard.addKey(Phaser.Keyboard.S),
-	//    left: game.input.keyboard.addKey(Phaser.Keyboard.A),
-	//    right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-	//  };
-	}
+}

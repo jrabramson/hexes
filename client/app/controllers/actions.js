@@ -11,6 +11,7 @@ Actions = {
 		hex.walls = hexData.walls;
 		hex.state = hexData.state;
 		hex.colour = hexData.colour;
+		hex.frameName = hexData.spriteName();
 		decorate(hex);
 
 		clearOptions();

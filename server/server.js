@@ -32,8 +32,8 @@ Meteor.startup(function () {
 
     var count = 0;
     var variant = 1;
-    for(i=0;i<100;i++) {
-      for(j=0;j<100;j++) {
+    for(i=0;i<32;i++) {
+      for(j=0;j<32;j++) {
         var rand = Math.floor(Math.random()*15);
         var terrain = terrainTypes[rand];
         Hexes.findAndModify({
@@ -181,10 +181,15 @@ Meteor.startup(function () {
     buyHex : function(hex) {
       var current_user = Meteor.users.findOne({_id: this.userId});
       var hex_tax = current_user.owned.length * 50;
+      var has_hexes = hex_tax > 0;
+      var selected = Hexes.findOne({_id: hex._id});
 
       if (hex.owner == null && current_user.wealth >= hex_tax) {
+        if (has_hexes && selected.adjacent(this.userId) == false) {
+          return 'Hexes must be purchased adjacent to your territory'
+        }
+
         this.unblock();
-        var selected = Hexes.findOne({_id: hex._id});
         var walls = selected.look();
         Meteor._debug('purchasing: ' + hex.x + ', ' + hex.y);
 
@@ -205,7 +210,7 @@ Meteor.startup(function () {
         );
         return 'Purchased ' + hex.x + ', ' + hex.y;
       } else {
-        return 'Error when purchasing ' + hex.x + ', ' + hex.y;
+        return 'Could not afford hex: ' + hex.x + ', ' + hex.y;
       }
     },
     buyTower : function(hex, struct) {
@@ -255,10 +260,20 @@ Meteor.startup(function () {
         Hexes.update(
           {_id: hex._id},
           {
+            $set: {
+              'state.type': 'tower',
+              'state.structure.type': [],
+              'state.structure.material': [],
+              'state.structure.variant': []
+            }
+          }
+        );
+        Hexes.update(
+          {_id: hex._id},
+          {
             $inc: { 'state.level': 1 },
             $set: {
               'state.type': 'tower',
-              'state.structure.type': []
             },
             $push: {
               'state.structure.type': struct.type,
@@ -303,6 +318,10 @@ Meteor.startup(function () {
           { _id: Meteor.userId() },
           { $inc: { wealth: -hex_tax } }
         );
+        return 'Built production on ' + hex.x + ', ' + hex.y;
+      } else {
+        console.log(current_user.username + ' failed to buy production on ' + hex.x + ', ' + hex.y);
+        return 'Failed to buy production on ' + hex.x + ', ' + hex.y;
       }
     },
     buyVillage: function(hex) {

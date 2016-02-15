@@ -108,39 +108,141 @@ MarketPlace = React.createClass({
 });
 
 Hovered = React.createClass({
+	building(type) {
+		if (type == undefined) {
+			return Empty;
+		}
+		return {
+			tower: Tower,
+			production: Production,
+			village: Village
+		}[type]
+	},
+	getInitialState() {
+	    return {
+	        hex: this.props.hex,
+	        structure: {}
+	    };
+	},
+	componentWillReceiveProps(nextProps) {
+	    if (nextProps.hex && nextProps.hex.state) {
+	    	this.setState({
+	    		hex: nextProps.hex,
+	    		structure: nextProps.hex.state.structure
+	    	});
+	    }
+	},
 	render() {
-		var hex = this.props.hex;
+		var hex      = this.state.hex;
+		var Building = this.building(hex.state ? hex.state.type : undefined)
+		var x        = hex.x ? hex.x : ''
+		var y        = hex.y ? hex.y : ''
+		var owner    = hex.owner ? hex.owner : 'No Owner';
+
 		return <div className='hovered'>
 			<div className={(hex.terrain || '') + ' terrain'}>
 				{hex.terrain || ''}
 			</div>
 			<div className={(hex.owner || '') + ' owner'}>
-				{this.owner(hex)}
+				{hex.terrain && owner}
+			</div>
+			<div className='coordinates'>
+				{x + (hex.x ? ', ' : '') + y}
 			</div>
 			<div className={(hex.level || '') + ' level'}>
-				{this.building(hex)}
+				<Building state={hex.state} />
 			</div>
 		</div>;
 	},
 	owner(hex) {
-		if (hex.terrain) {
+		if (hex.owner == undefined) {
 			return hex.owner || 'No Owner'
 		} else {
 			return hex.owner || ''
 		}
-	},
-	building(hex) {
-		var struct = hex.state || {};
+	}
+});
 
-		if (struct.type == 'tower') {
-			return struct.structure.material.map((x, i) => {
+Empty = React.createClass({ render() {return <div></div>; } });
+
+Tower = React.createClass({
+	getInitialState() {
+	    return {
+	    	type: '',
+	    	level: 0,
+	    	struct: {},
+	    	loaded: false
+	    };
+	},
+	componentWillReceiveProps(nextProps) {
+	    if (nextProps.structure) {
+	    	this.setState({
+	    		type: nextProps.state.type,
+	    		level: nextProps.state.level,
+	    		struct: nextProps.state.structure,
+	    		loaded: true
+	    	});
+	    }
+	},
+	render() {
+		if (this.state.loaded) {
+			return this.state.struct.material.map((x, i) => {
 				return <span key={i}>
-						{struct.structure.material[i][0].toUpperCase() + struct.structure.material[i].slice(1) + ' Tower'}
+						{struct.material[i][0].toUpperCase() + struct.material[i].slice(1) + ' Tower'}
 					</span>;
 			});
 		}
+		return  <div></div>;
 	}
-});
+})
+
+Production = React.createClass({
+	getInitialState() {
+	    return {
+	    	type: '',
+	    	level: 0,
+	    	struct: {}
+	    };
+	},
+	componentWillReceiveProps(nextProps) {
+	    if (nextProps.structure) {
+	    	this.setState({
+	    		type: nextProps.state.type,
+	    		level: nextProps.state.level,
+	    		struct: nextProps.state.structure
+	    	});
+	    }
+	},
+	render() {
+		return <div>
+				'production'
+			</div>;
+	}
+})
+
+Village = React.createClass({
+	getInitialState() {
+	    return {
+	    	type: '',
+	    	level: 0,
+	    	struct: {}
+	    };
+	},
+	componentWillReceiveProps(nextProps) {
+	    if (nextProps.state && nextProps.state.structure) {
+	    	this.setState({
+	    		type: nextProps.state.type,
+	    		level: nextProps.state.level,
+	    		struct: nextProps.state.structure
+	    	});
+	    }
+	},
+	render() {
+		return <div>
+				'village'
+			</div>;
+	}
+})
 
 Option = React.createClass({
 	getInitialState: function() {

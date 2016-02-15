@@ -38,7 +38,7 @@
         <key>dataFormat</key>
         <string>phaser-json-hash</string>
         <key>textureFileName</key>
-        <filename>spritesheet/sheet4.png</filename>
+        <filename>spritesheet/sheet5.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>pvrCompressionQuality</key>
@@ -147,7 +147,7 @@
             <key>data</key>
             <struct type="DataFile">
                 <key>name</key>
-                <filename>spritesheet/sheet4.json</filename>
+                <filename>spritesheet/sheet5.json</filename>
             </struct>
         </map>
         <key>multiPack</key>
@@ -255,6 +255,30 @@
             <filename>tileset/water1.png</filename>
             <filename>tileset/water2.png</filename>
             <filename>tileset/water3.png</filename>
+            <filename>tileset/trees1.png</filename>
+            <filename>tileset/trees2.png</filename>
+            <filename>tileset/trees3.png</filename>
+            <filename>tileset/water1production.png</filename>
+            <filename>tileset/water2production.png</filename>
+            <filename>tileset/water3production.png</filename>
+            <filename>tileset/ground1production.png</filename>
+            <filename>tileset/ground2production.png</filename>
+            <filename>tileset/ground3production.png</filename>
+            <filename>tileset/grass1production.png</filename>
+            <filename>tileset/grass2production.png</filename>
+            <filename>tileset/grass3production.png</filename>
+            <filename>tileset/sand1production.png</filename>
+            <filename>tileset/sand2production.png</filename>
+            <filename>tileset/sand3production.png</filename>
+            <filename>tileset/stone1production.png</filename>
+            <filename>tileset/stone2production.png</filename>
+            <filename>tileset/stone3production.png</filename>
+            <filename>tileset/trees1production.png</filename>
+            <filename>tileset/trees2production.png</filename>
+            <filename>tileset/trees3production.png</filename>
+            <filename>tileset/forest1production.png</filename>
+            <filename>tileset/forest2production.png</filename>
+            <filename>tileset/forest3production.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

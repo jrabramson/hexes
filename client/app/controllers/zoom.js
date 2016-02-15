@@ -6,7 +6,7 @@ mouseWheel = function(event) {
 		worldScale = 0.3;
 	}
 	else if (event.wheelDelta > 0 && worldScale < 1) {
-		worldScale = 1;
+		worldScale = 0.8;
 	}
 
 	var centerHex = world.hovered;

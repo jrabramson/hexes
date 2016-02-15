@@ -6,7 +6,9 @@ hexHover = function(hex) {
 			terrain: hex.terrain,
 			resource: hex.resource,
 			owner: hex.ownerName,
-			state: hex.state
+			state: hex.state,
+			x: hex.systemX,
+			y: hex.systemY
 		});
 	}
 }

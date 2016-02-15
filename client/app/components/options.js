@@ -31,7 +31,9 @@ optionsFor = function(hex, reset) {
 			}
 		}
 	} else {
-		getOptions(['buy'], hex);
+		if (Meteor.user().owned.length == 0 || hex.adjacent(Meteor.user()._id)) {
+			getOptions(['buy'], hex);
+		}
 	}
 }
 
@@ -52,7 +54,6 @@ buildOptions = function() {
 			body: '[+1] |hex| <br /> [+1] {resource} per turn'
 		}
 	});
-
 	addOption('production', 'flag', Actions.buyProduction, {
 		tooltip: {
 			title: 'Upgrade Production',
@@ -64,7 +65,6 @@ buildOptions = function() {
 			body: '[+1] {resource} per turn <br /> [50] |population| employed'
 		}
 	});
-
 	addOption('village', 'flag', Actions.buyVillage, {
 		tooltip: {
 			title: 'Upgrade Housing',
@@ -76,7 +76,6 @@ buildOptions = function() {
 			body: '[+150] |population| cap <br /> [-1] |food| per turn'
 		}
 	});
-
 	addOption('choiceTower', tower('wood'), optionCategory, {
 		type: 'tower',
 		tooltip: {
@@ -85,7 +84,7 @@ buildOptions = function() {
 			body: 'Towers do something'
 		}
 	});
-	addOption('choiceProduction', 'grass', optionCategory, {
+	addOption('choiceProduction', 'grass1', optionCategory, {
 		type: 'production',
 		tooltip: {
 			title: 'Production',
@@ -93,7 +92,7 @@ buildOptions = function() {
 			body: 'Production buildings increase the resource output of a hex, requires population.'
 		}
 	});
-	addOption('choiceVillage', 'sand', optionCategory, {
+	addOption('choiceVillage', 'sand1', optionCategory, {
 		type: 'village',
 		tooltip: {
 			title: 'Village',
@@ -101,7 +100,6 @@ buildOptions = function() {
 			body: 'Villages increases your population at the cost of food.'
 		}
 	});
-
 	addOption('woodTower', tower('wood'), Actions.buyTower, {
 		type: 1,
 		material: 'wood',
@@ -138,7 +136,6 @@ buildOptions = function() {
 			body: 'Building towers stops a hex from produc'
 		}
 	});
-
 	addOption('demolish', 'flag', Actions.demolish, {
 		tooltip: {
 			title: 'Demolish',
@@ -146,7 +143,6 @@ buildOptions = function() {
 			body: '|Compeletely| remove any developments on this hex. <br /> No resources or wealth are returned.'
 		}
 	});
-
 	addOption('back', 'flag', Actions.back, {
 		tooltip: {
 			title: 'Back',
