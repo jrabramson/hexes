@@ -60,6 +60,7 @@ construct = function(hex) {
 			case 'production':
 				break;
 			case 'village':
+				buildings = buildings.concat(buildDecoration('village', 1, 1, 0, 0.9, -12, 0));
 				break;
 			default:
 				break;

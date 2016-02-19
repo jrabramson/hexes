@@ -215,7 +215,7 @@ Production = React.createClass({
 	},
 	render() {
 		return <div>
-				'production'
+				production
 			</div>;
 	}
 })
@@ -239,7 +239,7 @@ Village = React.createClass({
 	},
 	render() {
 		return <div>
-				'village'
+				village
 			</div>;
 	}
 })
@@ -283,7 +283,7 @@ Option = React.createClass({
 	},
 	parse_increment: function(inc, hex) {
 		var params = inc.split('');
-		var level = hex.state.level;
+		var level = hex.state.level + 1;
 		var amount = params[1] * level;
 
 		return params[0] + amount;

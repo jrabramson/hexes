@@ -51,7 +51,8 @@ Meteor.startup(function () {
             state: {
               type: null,
               level: 0,
-              structure: {}
+              structure: {},
+              population: 0
             }
           }
         },
@@ -298,10 +299,10 @@ Meteor.startup(function () {
       }
 
       var current_user = Meteor.users.findOne({_id: this.userId});
-      var hex_tax = hex.state.level * 50;
+      var hex_tax = (hex.state.level * 50) + 50;
 
       if (hex.owner == current_user._id && hex.state.level < 3 && current_user.wealth >= hex_tax && current_user.resources.wood >= 50) {
-        console.log('upgrading: ' + hex.x + ', ' + hex.y)
+        console.log('upgrading production: ' + hex.x + ', ' + hex.y)
         Hexes.update(
           {_id: hex._id},
           {
@@ -316,7 +317,7 @@ Meteor.startup(function () {
         );
         Meteor.users.update(
           { _id: Meteor.userId() },
-          { $inc: { wealth: -hex_tax } }
+          { $inc: { wealth: -hex_tax, 'resources.wood': -50 } }
         );
         return 'Built production on ' + hex.x + ', ' + hex.y;
       } else {
@@ -326,13 +327,36 @@ Meteor.startup(function () {
     },
     buyVillage: function(hex) {
       var current_user = Meteor.users.findOne({_id: this.userId});
-      var hex_tax = hex.level * 25;
+      var hex_tax = (hex.state.level * 25) + 25;
 
-      if (hex.state && hex.state != 'village') {
+      if (hex.state.type && hex.state.type != 'village') {
         return 'Failed to buy village, hex is ' + hex.state;
       }
-
-
+      console.log(current_user.resources.wood);
+      console.log(hex_tax);
+      if (hex.owner == current_user._id && hex.state.level < 3 && current_user.wealth >= hex_tax && current_user.resources.wood >= 50) {
+          console.log('upgrading village: ' + hex.x + ', ' + hex.y)
+          Hexes.update(
+            {_id: hex._id},
+            {
+              $inc: {
+                'state.level': 1
+              },
+              $set: {
+                'state.type': 'village',
+                'state.structure.type': ''
+              }
+            }
+          );
+          Meteor.users.update(
+            { _id: Meteor.userId() },
+            { $inc: { wealth: -hex_tax, 'resources.wood': -50 } }
+          );
+          return 'Built village on ' + hex.x + ', ' + hex.y;
+        } else {
+          console.log(current_user.username + ' failed to buy village on ' + hex.x + ', ' + hex.y);
+          return 'Failed to buy village on ' + hex.x + ', ' + hex.y;
+      }
     },
     buyResource : function(transaction) {
       var current_user = Meteor.users.findOne({_id: this.userId});

@@ -279,6 +279,10 @@
             <filename>tileset/forest1production.png</filename>
             <filename>tileset/forest2production.png</filename>
             <filename>tileset/forest3production.png</filename>
+            <filename>tileset/grass1village.png</filename>
+            <filename>tileset/grass2village.png</filename>
+            <filename>tileset/grass3village.png</filename>
+            <filename>tileset/village.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
