@@ -9,7 +9,9 @@ optionsFor = function(hex, reset) {
 	}
 	clearOptions();
 	world.focusedHex = hex;
-	world.focusedHex.hover();
+	if (!reset) {
+		world.focusedHex.hover();
+	}
 	if (!Meteor.user() || !hex) {
 		return;
 	}

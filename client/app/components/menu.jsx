@@ -130,6 +130,11 @@ Hovered = React.createClass({
 	    		hex: nextProps.hex,
 	    		structure: nextProps.hex.state.structure
 	    	});
+	    } else {
+	    	this.setState({
+	    		hex: {},
+	    		structure: {}
+	    	});
 	    }
 	},
 	render() {
@@ -257,6 +262,10 @@ Option = React.createClass({
 				tooltip: nextProps.option.tooltip,
 				hex: nextProps.hex
 			});
+		} else {
+			this.setState({
+				tooltip: {}
+			})
 		}
 	},
 	render: function() {
@@ -282,6 +291,10 @@ Option = React.createClass({
 						   .replace(/\|(.*?)\|/g, ($0, $1) => { return "<span class='option-highlight'> " + $1 + "</span>" });
 	},
 	parse_increment: function(inc, hex) {
+		if (!hex.state) {
+			return '';
+		}
+
 		var params = inc.split('');
 		var level = hex.state.level + 1;
 		var amount = params[1] * level;

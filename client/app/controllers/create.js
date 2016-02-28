@@ -1,9 +1,9 @@
 create = function() {
 	game.canvas.oncontextmenu = function (e) { e.preventDefault(); }
 
-	game.tooltips_enabled = false;
+	tooltips_enabled = false;
 	game.show_resource_tooltips = function() {
-		if (game.tooltips_enabled) {
+		if (tooltips_enabled) {
 			return;
 		}
 		var territory = world.filter((hex) => { return hex.ownerName }).list;
@@ -23,28 +23,28 @@ create = function() {
 	    hex.addChild(tooltip);
 	    tooltips.push(tooltip);
 		});
-		game.tooltips_enabled = true;
+		tooltips_enabled = true;
 	}
 
 	game.hide_resource_tooltips = function() {
-		if (game.tooltips_enabled) {
+		if (tooltips_enabled) {
 			tooltips.forEach(function(t) {
 				t.destroy();
 			});
 			tooltips = [];
-			game.tooltips_enabled = false;
+			tooltips_enabled = false;
 		}
 	}
 
-	$('#camera canvas').on('blur', function(e) {
-		game.input.enabled = false;
-	}).on('focus', function(e) {
-		game.input.enabled = true;
-	});
-
-	$('#camera canvas').on('mouseout', function(e) {
+	game.focusLoss =  function() {
 		Session.set('hovered', {});
 		Session.set('option', {});
+	}
+
+	$('#menu').on('focus', 'input', function(e) {
+		game.input.enabled = false;
+	}).on('blur', 'input', function(e) {
+		game.input.enabled = true;
 	});
 
 	game.world.setBounds(-1000, -1000, 2000, 2000);
@@ -56,9 +56,7 @@ create = function() {
 	world = game.add.group();
 	world.z = 0;
 
-	hexes = Hexes.find({}, {sort: {order: 0}}).fetch();
-
-	hexes.forEach(function(hex, i) {
+	Hexes.find({}, {sort: {order: 0}}).fetch().forEach(function(hex, i) {
 		new Hex(hex, i);
 	});
 

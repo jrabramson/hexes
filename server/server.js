@@ -32,8 +32,8 @@ Meteor.startup(function () {
 
     var count = 0;
     var variant = 1;
-    for(i=0;i<32;i++) {
-      for(j=0;j<32;j++) {
+    for(i=1;i<=32;i++) {
+      for(j=1;j<=32;j++) {
         var rand = Math.floor(Math.random()*15);
         var terrain = terrainTypes[rand];
         Hexes.findAndModify({

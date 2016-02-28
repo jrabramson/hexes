@@ -1,4 +1,11 @@
 Hex = function(hex, i) {
+	var hexagonAngle = 0.523598776;
+	var sideLength = 37.5;
+	var hexHeight = Math.sin(hexagonAngle) * sideLength;
+	var hexRadius = Math.cos(hexagonAngle) * sideLength;
+	var hexRectangleHeight = sideLength + 2 * hexHeight;
+	var hexRectangleWidth = 2 * hexRadius;
+
 	var hexagonX = hex.x * hexRectangleWidth + ((Math.floor(i/32) % 2) * hexRadius);
 	var hexagonY = hex.y * (sideLength + hexHeight);
 	var hexagon = world.create(hexagonX, hexagonY, 'hexsheet', hex.spriteName());
